@@ -5,7 +5,6 @@
  * За помощь в написании примера спасибо Александру (http://vaart.habrahabr.ru, indrid@mail.ru)
  */
 
-require('../src/functions.php');
 require('../src/Jevix.php');
 
 $jevix = new Jevix();

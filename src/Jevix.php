@@ -812,7 +812,7 @@ class Jevix
         $this->curPos = $position;
         if ($this->curPos < $this->textLen) {
             $this->curCh = $this->textBuf[$this->curPos];
-            $this->curChOrd = uniord($this->curCh);
+            $this->curChOrd = mb_ord($this->curCh, 'UTF-8');
             $this->curChClass = $this->getCharClass($this->curChOrd);
         } else {
             $this->curCh = null;

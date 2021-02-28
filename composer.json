@@ -10,7 +10,6 @@
     {"name": "Evgeniy Borisov", "email": "agel-nash@mail.ru"}
   ],
   "autoload": {
-    "files": ["src/functions.php"],
     "psr-0": {"Jevix": "src/"}
   },
   "require": {

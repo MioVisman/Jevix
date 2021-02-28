@@ -13,7 +13,7 @@ require('src/Jevix.php');
 //РЕНДЕРИНГ КЛАССИФИКАТОРА СИМВОЛОВ
 function addChClass(&$tbl, $chars, $class, $add = false){
 	foreach($chars as $ch) {
-		$ord = uniord($ch);
+		$ord = mb_ord($ch, 'UTF-8');
 		if(!$add || !isset($tbl[$ord])){
 			$tbl[$ord] = $class;
 		} else {
@@ -33,11 +33,11 @@ function addChRangeClass(&$tbl, $chFrom, $chTo, $class, $add = false){
 }
 
 addChRangeClass($tbl, 0, 0x20, Jevix::NOPRINT);
-addChRangeClass($tbl, uniord('a'), uniord('z'), Jevix::ALPHA | Jevix::LAT |  Jevix::PRINATABLE | Jevix::NAME);
-addChRangeClass($tbl, uniord('A'), uniord('Z'), Jevix::ALPHA | Jevix::LAT |  Jevix::PRINATABLE | Jevix::NAME);
-addChRangeClass($tbl, uniord('а'), uniord('я'), Jevix::ALPHA | Jevix::PRINATABLE | Jevix::RUS);
-addChRangeClass($tbl, uniord('А'), uniord('Я'), Jevix::ALPHA | Jevix::PRINATABLE | Jevix::RUS);
-addChRangeClass($tbl, uniord('0'), uniord('9'), Jevix::NUMERIC | Jevix::NAME | Jevix::PRINATABLE | Jevix::URL);
+addChRangeClass($tbl, mb_ord('a', 'UTF-8'), mb_ord('z', 'UTF-8'), Jevix::ALPHA | Jevix::LAT |  Jevix::PRINATABLE | Jevix::NAME);
+addChRangeClass($tbl, mb_ord('A', 'UTF-8'), mb_ord('Z', 'UTF-8'), Jevix::ALPHA | Jevix::LAT |  Jevix::PRINATABLE | Jevix::NAME);
+addChRangeClass($tbl, mb_ord('а', 'UTF-8'), mb_ord('я', 'UTF-8'), Jevix::ALPHA | Jevix::PRINATABLE | Jevix::RUS);
+addChRangeClass($tbl, mb_ord('А', 'UTF-8'), mb_ord('Я', 'UTF-8'), Jevix::ALPHA | Jevix::PRINATABLE | Jevix::RUS);
+addChRangeClass($tbl, mb_ord('0', 'UTF-8'), mb_ord('9', 'UTF-8'), Jevix::NUMERIC | Jevix::NAME | Jevix::PRINATABLE | Jevix::URL);
 addChClass($tbl, array(' ', "\t"), Jevix::SPACE);
 addChClass($tbl, array("\r", "\n"), Jevix::NL, true);
 addChClass($tbl, array('"'), Jevix::TAG_QUOTE  | Jevix::HTML_QUOTE | Jevix::TAG_QUOTE | Jevix::QUOTE_OPEN | Jevix::QUOTE_CLOSE| Jevix::PRINATABLE);
