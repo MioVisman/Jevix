@@ -15,8 +15,6 @@
  * @version 1.2.0
  */
 
-use Exception;
-
 class Jevix
 {
     const PRINATABLE  =     0x1;
