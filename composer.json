@@ -13,6 +13,7 @@
     "psr-0": {"Jevix": "src/"}
   },
   "require": {
+    "php": ">=7.3.0",
     "ext-mbstring": "*"
   }
 }
