@@ -1543,12 +1543,12 @@ class Jevix
         }
 
         // Тег может находится только внтури другого тега
-        if (isset($tagRules[self::TR_TAG_CHILD])) {
-            if (! isset($tagRules[self::TR_TAG_PARENT][$parentTag])) {
-                return $content;
-            }
+        if (
+            isset($tagRules[self::TR_TAG_CHILD])
+            && ! isset($tagRules[self::TR_TAG_PARENT][$parentTag])
+        ) {
+            return $content;
         }
-
 
         $resParams = array();
 
@@ -1723,15 +1723,11 @@ class Jevix
 
         // Пустой некороткий тег удаляем кроме исключений
         if (
-            ! isset($tagRules[self::TR_TAG_IS_EMPTY])
-            || ! $tagRules[self::TR_TAG_IS_EMPTY]
+            empty($tagRules[self::TR_TAG_IS_EMPTY])
+            && ! $short
+            && $content == ''
         ) {
-            if (
-                ! $short
-                && $content == ''
-            ) {
-                return '';
-            }
+            return '';
         }
 
         // Проверка на допустимые комбинации
@@ -1778,10 +1774,7 @@ class Jevix
                             }
                         }
                     }
-                } elseif (
-                    isset($aRuleCombin[$param]['remove'])
-                    && $aRuleCombin[$param]['remove']
-                ) {
+                } elseif (! empty($aRuleCombin[$param]['remove'])) {
                     return '';
                 }
             }
@@ -1875,10 +1868,7 @@ class Jevix
                 // Пропускаем пробелы после <br> и запрещённых тегов, которые вырезаются парсером
                 if ($tag == 'br') {
                     $this->skipNL();
-                } elseif (
-                    isset($this->tagsRules[$tag])
-                    && isset($this->tagsRules[$tag][self::TR_TAG_BLOCK_TYPE])
-                ) {
+                } elseif (isset($this->tagsRules[$tag][self::TR_TAG_BLOCK_TYPE])) {
                     $count = 0;
                     $this->skipNL($count, 2);
                 } elseif ($tagText == '') {
@@ -2281,7 +2271,6 @@ class Jevix
                 // Перенос строки
                 if (
                     $this->curParentTag
-                    && isset($this->tagsRules[$this->curParentTag])
                     && isset($this->tagsRules[$this->curParentTag][self::TR_TAG_NO_AUTO_BR])
                     && (
                         is_null($this->openedTag)
@@ -2437,6 +2426,6 @@ class Jevix
      */
     protected function _getSkipProtocol($sParam)
     {
-        return isset($this->skipProtocol[$sParam]) && $this->skipProtocol[$sParam];
+        return ! empty($this->skipProtocol[$sParam]);
     }
 }
