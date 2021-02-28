@@ -1007,7 +1007,7 @@ class Jevix
      */
     protected function getCharClass($ord)
     {
-        return isset($this->chClasses[$ord]) ? $this->chClasses[$ord] : self::PRINATABLE;
+        return $this->chClasses[$ord] ?? self::PRINATABLE;
     }
 
     /**
@@ -1169,7 +1169,7 @@ class Jevix
             } else {
                 $tmp .= $this->curCh;
             }
-            $tmp_content .= isset($this->entities2[$this->curCh]) ? $this->entities2[$this->curCh] : $this->curCh;
+            $tmp_content .= $this->entities2[$this->curCh] ?? $this->curCh;
             $this->getCh();
         }
 
@@ -1184,7 +1184,7 @@ class Jevix
             if ($isClosedTag && $tag == $insideTag) {
                 return;
             }
-            $content .= isset($this->entities2[$this->curCh]) ? $this->entities2[$this->curCh] : $this->curCh;
+            $content .= $this->entities2[$this->curCh] ?? $this->curCh;
             $this->getCh();
         }
     }
@@ -1348,7 +1348,7 @@ class Jevix
             while ($this->curChClass && ($this->curCh != $quote || $escape)) {
                 $escape = false;
                 // Экранируем символы HTML которые не могут быть в параметрах
-                $value .= isset($this->entities1[$this->curCh]) ? $this->entities1[$this->curCh] : $this->curCh;
+                $value .= $this->entities1[$this->curCh] ?? $this->curCh;
                 // Символ ескейпа <a href="javascript::alert(\"hello\")">
                 if ($this->curCh == '\\') {
                     $escape = true;
@@ -1359,7 +1359,7 @@ class Jevix
             // долбаный параметр без кавычек. получаем его пока не пробел и не > и не конец
             while ($this->curChClass && !($this->curChClass & self::SPACE) && $this->curCh != '>') {
                 // Экранируем символы HTML которые не могут быть в параметрах
-                $value .= isset($this->entities1[$this->curCh]) ? $this->entities1[$this->curCh] : $this->curCh;
+                $value .= $this->entities1[$this->curCh] ?? $this->curCh;
                 $this->getCh();
             }
         }
@@ -1415,7 +1415,7 @@ class Jevix
         $tag = mb_strtolower($tag, 'UTF-8');
 
         // Получаем правила фильтрации тега
-        $tagRules = isset($this->tagsRules[$tag]) ? $this->tagsRules[$tag] : null;
+        $tagRules = $this->tagsRules[$tag] ?? null;
 
         // Проверка - родительский тег - контейнер, содержащий только другие теги (ul, table, etc)
         $parentTagIsContainer = $parentTag && isset($this->tagsRules[$parentTag][self::TR_TAG_CONTAINER]);
@@ -1454,7 +1454,7 @@ class Jevix
             }
 
             // Атрибут тега разрешён? Какие возможны значения? Получаем список правил
-            $paramAllowedValues = isset($tagRules[self::TR_PARAM_ALLOWED][$param]) ? $tagRules[self::TR_PARAM_ALLOWED][$param] : false;
+            $paramAllowedValues = $tagRules[self::TR_PARAM_ALLOWED][$param] ?? false;
             if (empty($paramAllowedValues)) {
                 continue;
             }
@@ -2006,7 +2006,7 @@ class Jevix
 
             // автопреобразование сущностей...
             if (!$spCount && $this->curCh == '&' && $this->htmlEntity($entity)) {
-                $text .= isset($this->entities2[$entity]) ? $this->entities2[$entity] : $entity;
+                $text .= $this->entities2[$entity] ?? $entity;
             } elseif ($typoEnabled && ($this->curChClass & self::PUNCTUATUON) && $this->punctuation($punctuation)) {
                 // Автопунктуация выключена
                 // Если встретилась пунктуация - добавляем ее
@@ -2061,7 +2061,7 @@ class Jevix
                 $text .= $this->makeTag('a', array('href' => $href), $url, false);
             } elseif ($this->curChClass & self::PRINATABLE) {
                 // Экранируем символы HTML которые нельзя сувать внутрь тега (но не те? которые не могут быть в параметрах)
-                $text .= isset($this->entities2[$this->curCh]) ? $this->entities2[$this->curCh] : $this->curCh;
+                $text .= $this->entities2[$this->curCh] ?? $this->curCh;
                 $this->getCh();
                 $newWord = false;
                 $newLine = false;
