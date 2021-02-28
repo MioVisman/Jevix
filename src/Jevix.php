@@ -43,23 +43,23 @@ class Jevix
     const STATE_INSIDE_PREFORMATTED_TAG = 5;
     const STATE_INSIDE_CALLBACK_TAG     = 6;
 
-    public $tagsRules  = array();
-    public $entities1  = array('"' => '&quot;', "'" => '&#39;', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;');
-    public $entities2  = array('<' => '&lt;', '>' => '&gt;', '"' => '&quot;');
-    public $textQuotes = array(array('«', '»'), array('„', '“'));
+    public $tagsRules  = [];
+    public $entities1  = ['"' => '&quot;', "'" => '&#39;', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
+    public $entities2  = ['<' => '&lt;', '>' => '&gt;', '"' => '&quot;'];
+    public $textQuotes = [['«', '»'], ['„', '“']];
 
     public $dash     = " — ";
     public $apostrof = "’";
     public $dotes    = "…";
     public $nl       = "\r\n";
-    public $defaultTagParamRules = array(
+    public $defaultTagParamRules = [
         'href'   => '#link',
         'src'    => '#image',
         'width'  => '#int',
         'height' => '#int',
         'text'   => '#text',
         'title'  => '#text'
-    );
+    ];
 
     protected $text;
     protected $textBuf;
@@ -76,9 +76,9 @@ class Jevix
     protected $tagsStack;
     protected $openedTag;
     protected $autoReplace; // Автозамена
-    protected $allowedProtocols = array('#img' => 'http:|https:', '#link' => 'http:|https:|ftp:|mailto:');
-    protected $allowedProtocolsDefault = array('http', 'https', 'ftp');
-    protected $skipProtocol = array();
+    protected $allowedProtocols = ['#img' => 'http:|https:', '#link' => 'http:|https:|ftp:|mailto:'];
+    protected $allowedProtocolsDefault = ['http', 'https', 'ftp'];
+    protected $skipProtocol = [];
     protected $autoPregReplace; // Автозамена с поддержкой регулярных выражений
     protected $isXHTMLMode = true; // <br/>, <img/>
     protected $isAutoBrMode = true; // \n = <br/>
@@ -119,7 +119,7 @@ class Jevix
      *
      * @var array
      */
-    protected $chClasses = array(
+    protected $chClasses = [
         0    => 512,
         1    => 512,
         2    => 512,
@@ -299,7 +299,7 @@ class Jevix
         35   => 257,
         124  => 257,
         64   => 257,
-    );
+    ];
 
     /**
      * Установка конфигурационного флага для одного или нескольких тегов
@@ -314,13 +314,13 @@ class Jevix
     protected function _cfgSetTagsFlag($tags, $flag, $value, $createIfNotExists = true)
     {
         if (! is_array($tags)) {
-            $tags = array($tags);
+            $tags = [$tags];
         }
 
         foreach ($tags as $tag) {
             if (! isset($this->tagsRules[$tag])) {
                 if ($createIfNotExists) {
-                    $this->tagsRules[$tag] = array();
+                    $this->tagsRules[$tag] = [];
                 } else {
                     throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
                 }
@@ -425,12 +425,12 @@ class Jevix
         }
 
         if (! is_array($params)) {
-            $params = array($params);
+            $params = [$params];
         }
 
         // Если ключа со списком разрешенных параметров не существует - создаём ео
         if (! isset($this->tagsRules[$tag][self::TR_PARAM_ALLOWED])) {
-            $this->tagsRules[$tag][self::TR_PARAM_ALLOWED] = array();
+            $this->tagsRules[$tag][self::TR_PARAM_ALLOWED] = [];
         }
 
         foreach ($params as $key => $value) {
@@ -455,12 +455,12 @@ class Jevix
         }
 
         if (! is_array($params)) {
-            $params = array($params);
+            $params = [$params];
         }
 
         // Если ключа со списком разрешенных параметров не существует - создаём его
         if (! isset($this->tagsRules[$tag][self::TR_PARAM_REQUIRED])) {
-            $this->tagsRules[$tag][self::TR_PARAM_REQUIRED] = array();
+            $this->tagsRules[$tag][self::TR_PARAM_REQUIRED] = [];
         }
 
         foreach ($params as $param) {
@@ -483,7 +483,7 @@ class Jevix
         }
 
         if (! is_array($childs)) {
-            $childs = array($childs);
+            $childs = [$childs];
         }
 
         // Тег является контейнером и не может содержать текст
@@ -493,7 +493,7 @@ class Jevix
 
         // Если ключа со списком разрешенных тегов не существует - создаём ео
         if (! isset($this->tagsRules[$tag][self::TR_TAG_CHILD_TAGS])) {
-            $this->tagsRules[$tag][self::TR_TAG_CHILD_TAGS] = array();
+            $this->tagsRules[$tag][self::TR_TAG_CHILD_TAGS] = [];
         }
 
         foreach ($childs as $child) {
@@ -505,7 +505,7 @@ class Jevix
             }
 
             if (! isset($this->tagsRules[$child][self::TR_TAG_PARENT])) {
-                $this->tagsRules[$child][self::TR_TAG_PARENT] = array();
+                $this->tagsRules[$child][self::TR_TAG_PARENT] = [];
             }
 
             $this->tagsRules[$child][self::TR_TAG_PARENT][$tag] = true;
@@ -546,10 +546,10 @@ class Jevix
         }
 
         if (! isset($this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD])) {
-            $this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD] = array();
+            $this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD] = [];
         }
 
-        $this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD][$param] = array('value' => $value, 'rewrite' => $isRewrite);
+        $this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD][$param] = ['value' => $value, 'rewrite' => $isRewrite];
     }
 
     /**
@@ -599,17 +599,17 @@ class Jevix
         }
 
         if (! isset($this->tagsRules[$tag][self::TR_PARAM_COMBINATION])) {
-            $this->tagsRules[$tag][self::TR_PARAM_COMBINATION] = array();
+            $this->tagsRules[$tag][self::TR_PARAM_COMBINATION] = [];
         }
 
         /**
          * Переводим в нижний регистр значений параметров
          * Ужасный код
          */
-        $aCombinationsResult = array();
+        $aCombinationsResult = [];
 
         foreach ($aCombinations as $k => $aAttr) {
-            $aAttrResult = array();
+            $aAttrResult = [];
 
             foreach ($aAttr as $kk => $mValue) {
                 if (is_string($mValue)) {
@@ -628,10 +628,10 @@ class Jevix
             $aCombinationsResult[mb_strtolower($k, 'UTF-8')] = $aAttrResult;
         }
 
-        $this->tagsRules[$tag][self::TR_PARAM_COMBINATION][$param] = array(
+        $this->tagsRules[$tag][self::TR_PARAM_COMBINATION][$param] = [
             'combination' => $aCombinationsResult,
-            'remove'      => $bRemove
-        );
+            'remove'      => $bRemove,
+        ];
     }
 
     /**
@@ -642,7 +642,7 @@ class Jevix
      */
     public function cfgSetAutoReplace($from, $to)
     {
-        $this->autoReplace = array('from' => $from, 'to' => $to);
+        $this->autoReplace = ['from' => $from, 'to' => $to];
     }
 
     /**
@@ -653,7 +653,7 @@ class Jevix
      */
     public function cfgSetAutoPregReplace($from, $to)
     {
-        $this->autoPregReplace = array('from' => $from, 'to' => $to);
+        $this->autoPregReplace = ['from' => $from, 'to' => $to];
     }
 
     /**
@@ -674,14 +674,14 @@ class Jevix
      * @param bool $bClearDefault Удалить дефолтные протоколы
      * @param string|array $aParams Для каких параметров задавать
      */
-    public function cfgSetAllowedProtocols($aProtocols, $bClearDefault = false, $aParams = array())
+    public function cfgSetAllowedProtocols($aProtocols, $bClearDefault = false, $aParams = [])
     {
         if (! is_array($aProtocols)) {
-            $aProtocols = array((string)$aProtocols);
+            $aProtocols = [(string) $aProtocols];
         }
 
         if (! is_array($aParams)) {
-            $aParams = array((string)$aParams);
+            $aParams = [(string) $aParams];
         }
 
         $bSkipProtocol = false;
@@ -773,13 +773,13 @@ class Jevix
         $this->curCh        = null;
         $this->curChOrd     = 0;
         $this->state        = self::STATE_TEXT;
-        $this->states       = array();
+        $this->states       = [];
         $this->quotesOpened = 0;
         $this->noTypoMode   = false;
         $this->text         = $text;
 
         // Автозамена с регулярными выражениями
-        $replacements = array();
+        $replacements = [];
 
         if (! empty($this->autoPregReplace)) {
             foreach ($this->autoPregReplace['from'] as $k => $v) {
@@ -806,9 +806,9 @@ class Jevix
         $content         = '';
         $this->outBuffer = '';
         $this->brAdded   = 0;
-        $this->tagsStack = array();
+        $this->tagsStack = [];
         $this->openedTag = null;
-        $this->errors    = array();
+        $this->errors    = [];
         $this->skipSpaces();
         $this->anyThing($content);
         $errors = $this->errors;
@@ -859,12 +859,12 @@ class Jevix
      */
     protected function saveState()
     {
-        $this->states[] = array(
+        $this->states[] = [
             'pos'   => $this->curPos,
             'ch'    => $this->curCh,
             'ord'   => $this->curChOrd,
             'class' => $this->curChClass,
-        );
+        ];
 
         return count($this->states) - 1;
     }
@@ -1104,10 +1104,10 @@ class Jevix
     protected function tag(&$tag, &$params, &$content, &$short)
     {
         $this->saveState();
-        $params   = array();
+        $params   = [];
         $tag      = '';
         $closeTag = '';
-        $params   = array();
+        $params   = [];
         $short    = false;
 
         if (! $this->tagOpen($tag, $params, $short)) {
@@ -1359,7 +1359,7 @@ class Jevix
      * @param array $params
      * @return bool
      */
-    protected function tagParams(&$params = array())
+    protected function tagParams(&$params = [])
     {
         $name  = null;
         $value = null;
@@ -1550,7 +1550,7 @@ class Jevix
             return $content;
         }
 
-        $resParams = array();
+        $resParams = [];
 
         foreach ($params as $param => $value) {
             $param = mb_strtolower($param, 'UTF-8');
@@ -1695,7 +1695,7 @@ class Jevix
 
         // Проверка обязятельных параметров тега
         // Если нет обязательных параметров возвращаем только контент
-        $requiredParams = isset($tagRules[self::TR_PARAM_REQUIRED]) ? array_keys($tagRules[self::TR_PARAM_REQUIRED]) : array();
+        $requiredParams = isset($tagRules[self::TR_PARAM_REQUIRED]) ? array_keys($tagRules[self::TR_PARAM_REQUIRED]) : [];
 
         if ($requiredParams) {
             foreach ($requiredParams as $requiredParam) {
@@ -2295,7 +2295,7 @@ class Jevix
                 && $this->url($url, $href)
             ) {
                 // URL
-                $text .= $this->makeTag('a', array('href' => $href), $url, false);
+                $text .= $this->makeTag('a', ['href' => $href], $url, false);
             } elseif ($this->curChClass & self::PRINATABLE) {
                 // Экранируем символы HTML которые нельзя сувать внутрь тега (но не те? которые не могут быть в параметрах)
                 $text .= $this->entities2[$this->curCh] ?? $this->curCh;
@@ -2398,13 +2398,13 @@ class Jevix
             $str .= $this->textBuf[$i];
         }
 
-        $this->errors[] = array(
+        $this->errors[] = [
             'message' => $message,
             'pos'     => $this->curPos,
             'ch'      => $this->curCh,
             'line'    => 0,
             'str'     => $str,
-        );
+        ];
     }
 
     /**
