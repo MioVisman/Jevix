@@ -53,7 +53,7 @@ $res = $jevix->parse($text, $errors);
 print "результат: \n-------------\n$res\n-------------\n";
 print "ошибки: \n";
 print_r($errors);
-/**
+/*
 результат:
 -------------
 <iframe src="https://youtube.com/embed/4fMLHBiQlKM" width="100" height="100"></iframe><br/>
