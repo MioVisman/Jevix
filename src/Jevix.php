@@ -50,16 +50,16 @@ class Jevix
     const STATE_INSIDE_PREFORMATTED_TAG = 5;
     const STATE_INSIDE_CALLBACK_TAG     = 6;
 
-    public $tagsRules  = [];
-    public $entities1  = ['"' => '&quot;', "'" => '&#39;', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
-    public $entities2  = ['<' => '&lt;', '>' => '&gt;', '"' => '&quot;'];
-    public $textQuotes = [['«', '»'], ['„', '“']];
+    protected $tagsRules  = [];
+    protected $entities1  = ['"' => '&quot;', "'" => '&#39;', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
+    protected $entities2  = ['<' => '&lt;', '>' => '&gt;', '"' => '&quot;'];
+    protected $textQuotes = [['«', '»'], ['„', '“']];
 
-    public $dash     = " — ";
-    public $apostrof = "’";
-    public $dotes    = "…";
-    public $nl       = "\r\n";
-    public $defaultTagParamRules = [
+    protected $dash                 = " — ";
+    protected $apostrof             = "’";
+    protected $dotes                = "…";
+    protected $nl                   = "\r\n";
+    protected $defaultTagParamRules = [
         'href'   => '#link',
         'src'    => '#image',
         'width'  => '#int',
@@ -70,33 +70,31 @@ class Jevix
 
     protected $text;
     protected $textBuf;
-    protected $textLen = 0;
+    protected $textLen                 = 0;
     protected $curPos;
     protected $curCh;
     protected $curChOrd;
     protected $curChClass;
     protected $curParentTag;
     protected $states;
-    protected $quotesOpened = 0;
-    protected $brAdded = 0;
+    protected $quotesOpened            = 0;
+    protected $brAdded                 = 0;
     protected $state;
     protected $tagsStack;
     protected $openedTag;
-    protected $autoReplace; // Автозамена
-    protected $allowedProtocols = ['#img' => 'http:|https:', '#link' => 'http:|https:|ftp:|mailto:'];
+    protected $autoReplace;              // Автозамена
+    protected $allowedProtocols        = ['#img' => 'http:|https:', '#link' => 'http:|https:|ftp:|mailto:'];
     protected $allowedProtocolsDefault = ['http', 'https', 'ftp'];
-    protected $skipProtocol = [];
-    protected $autoPregReplace; // Автозамена с поддержкой регулярных выражений
-    protected $isXHTMLMode = true; // <br/>, <img/>
-    protected $eFlags = ENT_XHTML | ENT_QUOTES;
-    protected $isAutoBrMode = true; // \n = <br/>
-    protected $isAutoLinkMode = true;
-    protected $br = "<br/>";
-
-    protected $noTypoMode = false;
-
-    public $outBuffer = '';
-    public $errors;
+    protected $skipProtocol            = [];
+    protected $autoPregReplace;          // Автозамена с поддержкой регулярных выражений
+    protected $isXHTMLMode             = true; // <br/>, <img/>
+    protected $eFlags                  = \ENT_XHTML | \ENT_QUOTES;
+    protected $isAutoBrMode            = true; // \n = <br/>
+    protected $isAutoLinkMode          = true;
+    protected $br                      = "<br/>";
+    protected $noTypoMode              = false;
+    protected $outBuffer               = '';
+    protected $errors;
 
 
     /**
@@ -321,7 +319,7 @@ class Jevix
      */
     protected function _cfgSetTagsFlag($tags, $flag, $value, $createIfNotExists = true)
     {
-        if (! is_array($tags)) {
+        if (! \is_array($tags)) {
             $tags = [$tags];
         }
 
@@ -432,7 +430,7 @@ class Jevix
             throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
         }
 
-        if (! is_array($params)) {
+        if (! \is_array($params)) {
             $params = [$params];
         }
 
@@ -442,7 +440,7 @@ class Jevix
         }
 
         foreach ($params as $key => $value) {
-            if (is_string($key)) {
+            if (\is_string($key)) {
                 $this->tagsRules[$tag][self::TR_PARAM_ALLOWED][$key] = $value;
             } else {
                 $this->tagsRules[$tag][self::TR_PARAM_ALLOWED][$value] = true;
@@ -462,7 +460,7 @@ class Jevix
             throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
         }
 
-        if (! is_array($params)) {
+        if (! \is_array($params)) {
             $params = [$params];
         }
 
@@ -490,7 +488,7 @@ class Jevix
             throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
         }
 
-        if (! is_array($childs)) {
+        if (! \is_array($childs)) {
             $childs = [$childs];
         }
 
@@ -610,15 +608,15 @@ class Jevix
         $result = [];
 
         foreach ($array as $key => $value) {
-            if (is_string($key)) {
-                $key = mb_strtolower($key, 'UTF-8');
+            if (\is_string($key)) {
+                $key = \mb_strtolower($key, 'UTF-8');
             }
 
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $value = $this->arrayToLowerRec($value);
 
-            } elseif (is_string($value)) {
-                $value = mb_strtolower($value, 'UTF-8');
+            } elseif (\is_string($value)) {
+                $value = \mb_strtolower($value, 'UTF-8');
             }
 
             $result[$key] = $value;
@@ -669,11 +667,11 @@ class Jevix
      */
     public function cfgSetAllowedProtocols($aProtocols, $bClearDefault = false, $aParams = [])
     {
-        if (! is_array($aProtocols)) {
+        if (! \is_array($aProtocols)) {
             $aProtocols = [(string) $aProtocols];
         }
 
-        if (! is_array($aParams)) {
+        if (! \is_array($aParams)) {
             $aParams = [(string) $aParams];
         }
 
@@ -685,9 +683,9 @@ class Jevix
                 $bSkipProtocol = true;
                 unset($aProtocols[$nKey]);
 
-            } elseif (substr($sProtocol, -1) == ':') {
+            } elseif (':' === $sProtocol[-1]) {
                 // Убираем двоеточие в конце протокола
-                $aProtocols[$nKey] = trim($sProtocol, ':');
+                $aProtocols[$nKey] = \rtrim($sProtocol, ':');
             }
         }
 
@@ -697,10 +695,10 @@ class Jevix
                     $bClearDefault
                     || ! isset($this->allowedProtocols[$sParam])
                 ) {
-                    $this->allowedProtocols[$sParam] = implode(':|', $aProtocols) . ':';
+                    $this->allowedProtocols[$sParam] = \implode(':|', $aProtocols) . ':';
 
                 } else {
-                    $this->allowedProtocols[$sParam] = implode(':|', array_merge($this->allowedProtocolsDefault, $aProtocols)) . ':';
+                    $this->allowedProtocols[$sParam] = \implode(':|', \array_merge($this->allowedProtocolsDefault, $aProtocols)) . ':';
                 }
             }
 
@@ -723,7 +721,7 @@ class Jevix
     {
         $this->br          = $isXHTMLMode ? '<br/>' : '<br>';
         $this->isXHTMLMode = $isXHTMLMode;
-        $this->eFlags      = ($isXHTMLMode ? ENT_XHTML : ENT_HTML5) | ENT_QUOTES;
+        $this->eFlags      = ($isXHTMLMode ? \ENT_XHTML : \ENT_HTML5) | \ENT_QUOTES;
     }
 
     /**
@@ -753,7 +751,7 @@ class Jevix
     protected function &strToArray($str)
     {
         $chars = null;
-        preg_match_all('/./su', $str, $chars);
+        \preg_match_all('/./su', $str, $chars);
 
         return $chars[0];
     }
@@ -780,25 +778,25 @@ class Jevix
 
         if (! empty($this->autoPregReplace)) {
             foreach ($this->autoPregReplace['from'] as $k => $v) {
-                preg_match_all($v, $this->text, $matches);
+                \preg_match_all($v, $this->text, $matches);
 
                 foreach ($matches[0] as $k2 => $v2) {
-                    $to   = preg_replace($v, $this->autoPregReplace['to'][$k], $v2);
-                    $hash = sha1(serialize($v2));
+                    $to   = \preg_replace($v, $this->autoPregReplace['to'][$k], $v2);
+                    $hash = \sha1(\serialize($v2));
 
                     $replacements[$hash] = $to;
-                    $this->text          = str_replace($v2, $hash, $this->text);
+                    $this->text          = \str_replace($v2, $hash, $this->text);
                 }
             }
         }
 
         // Авто растановка BR?
         if ($this->isAutoBrMode) {
-            $this->text = preg_replace('/<br\/?>(\r\n|\n\r|\n)?/ui', $this->nl, $this->text);
+            $this->text = \preg_replace('/<br\/?>(\r\n|\n\r|\n)?/ui', $this->nl, $this->text);
         }
 
         $this->textBuf   = $this->strToArray($this->text);
-        $this->textLen   = count($this->textBuf);
+        $this->textLen   = \count($this->textBuf);
         $this->getCh();
         $content         = '';
         $this->outBuffer = '';
@@ -811,11 +809,11 @@ class Jevix
         $errors          = $this->errors;
 
         if (! empty($this->autoReplace)) {
-            $content = str_ireplace($this->autoReplace['from'], $this->autoReplace['to'], $content);
+            $content = \str_ireplace($this->autoReplace['from'], $this->autoReplace['to'], $content);
         }
 
         if (! empty($replacements)) {
-            $content = str_replace(array_keys($replacements), $replacements, $content);
+            $content = \str_replace(\array_keys($replacements), $replacements, $content);
         }
 
         return $content;
@@ -840,7 +838,7 @@ class Jevix
         $this->curPos = $position;
         if ($this->curPos < $this->textLen) {
             $this->curCh      = $this->textBuf[$this->curPos];
-            $this->curChOrd   = mb_ord($this->curCh, 'UTF-8');
+            $this->curChOrd   = \mb_ord($this->curCh, 'UTF-8');
             $this->curChClass = $this->getCharClass($this->curChOrd);
 
         } else {
@@ -864,7 +862,7 @@ class Jevix
             'class' => $this->curChClass,
         ];
 
-        return count($this->states) - 1;
+        return \count($this->states) - 1;
     }
 
     /**
@@ -874,12 +872,12 @@ class Jevix
      */
     protected function restoreState($index = null)
     {
-        if (! count($this->states)) {
+        if (empty($this->states)) {
             throw new Exception('Конец стека');
         }
 
         if ($index === null) {
-            $state = array_pop($this->states);
+            $state = \array_pop($this->states);
 
         } else {
             if (! isset($this->states[$index])) {
@@ -887,7 +885,7 @@ class Jevix
             }
 
             $state        = $this->states[$index];
-            $this->states = array_slice($this->states, 0, $index);
+            $this->states = \array_slice($this->states, 0, $index);
         }
 
         $this->curPos     = $state['pos'];
@@ -955,7 +953,7 @@ class Jevix
     protected function matchStr($str, $skipSpaces = false)
     {
         $this->saveState();
-        $len  = mb_strlen($str, 'UTF-8');
+        $len  = \mb_strlen($str, 'UTF-8');
         $test = '';
 
         while (
@@ -987,7 +985,7 @@ class Jevix
      */
     protected function skipUntilCh($ch)
     {
-        $chPos = mb_strpos($this->text, $ch, $this->curPos, 'UTF-8');
+        $chPos = \mb_strpos($this->text, $ch, $this->curPos, 'UTF-8');
 
         return $chPos ? $this->goToPosition($chPos) : false;
     }
@@ -1003,7 +1001,7 @@ class Jevix
     {
         $str     = $this->strToArray($str);
         $firstCh = $str[0];
-        $len     = count($str);
+        $len     = \count($str);
 
         while ($this->curChClass) {
             if ($this->curCh == $firstCh) {
@@ -1149,8 +1147,8 @@ class Jevix
             $this->state      = self::STATE_INSIDE_TAG;
 
         } elseif (
-            array_key_exists($tag, $this->tagsRules)
-            && array_key_exists(self::TR_TAG_CALLBACK, $this->tagsRules[$tag])
+            \array_key_exists($tag, $this->tagsRules)
+            && \array_key_exists(self::TR_TAG_CALLBACK, $this->tagsRules[$tag])
         ) {
             $this->state = self::STATE_INSIDE_CALLBACK_TAG;
 
@@ -1159,7 +1157,7 @@ class Jevix
         }
 
         // Контент тега
-        array_push($this->tagsStack, $tag);
+        \array_push($this->tagsStack, $tag);
         $this->openedTag = $tag;
         $content         = '';
 
@@ -1173,8 +1171,8 @@ class Jevix
             $this->anyThing($content, $tag);
         }
 
-        array_pop($this->tagsStack);
-        $this->openedTag = ! empty($this->tagsStack) ? array_pop($this->tagsStack) : null;
+        \array_pop($this->tagsStack);
+        $this->openedTag = ! empty($this->tagsStack) ? \array_pop($this->tagsStack) : null;
         $isTagClose      = $this->tagClose($closeTag);
 
         if (
@@ -1298,7 +1296,7 @@ class Jevix
                     && $tag == $insideTag
                 ) {
                     if ($callback = $this->tagsRules[$tag][self::TR_TAG_CALLBACK]) {
-                        $content = call_user_func($callback, $content);
+                        $content = \call_user_func($callback, $content);
                     }
 
                     return;
@@ -1334,7 +1332,7 @@ class Jevix
             return false;
         }
 
-        $name = mb_strtolower($name, 'UTF-8');
+        $name = \mb_strtolower($name, 'UTF-8');
 
         // Пробуем получить список атрибутов тега
         if (
@@ -1345,7 +1343,7 @@ class Jevix
         }
 
         // Короткая запись тега
-        $short = !empty($this->tagsRules[$name][self::TR_TAG_SHORT]);
+        $short = ! empty($this->tagsRules[$name][self::TR_TAG_SHORT]);
 
         // Short && XHTML && !Slash || Short && !XHTML && !Slash = ERROR
         $slash = $this->matchCh('/');
@@ -1389,7 +1387,7 @@ class Jevix
             $value         = '';
         }
 
-        return count($params) > 0;
+        return ! empty($params);
     }
 
     /**
@@ -1524,7 +1522,7 @@ class Jevix
             return false;
         }
 
-        $name = mb_strtolower($name, 'UTF-8');
+        $name = \mb_strtolower($name, 'UTF-8');
         $this->skipSpaces();
 
         if (! $this->matchCh('>')) {
@@ -1547,7 +1545,7 @@ class Jevix
     protected function makeTag($tag, $params, $content, $short, $parentTag = null)
     {
         $this->curParentTag = $parentTag;
-        $tag                = mb_strtolower($tag, 'UTF-8');
+        $tag                = \mb_strtolower($tag, 'UTF-8');
 
         // Получаем правила фильтрации тега
         $tagRules = $this->tagsRules[$tag] ?? null;
@@ -1590,8 +1588,8 @@ class Jevix
         $resParams = [];
 
         foreach ($params as $param => $value) {
-            $param = mb_strtolower($param, 'UTF-8');
-            $value = trim($this->eDecode($value));
+            $param = \mb_strtolower($param, 'UTF-8');
+            $value = \trim($this->eDecode($value));
 
             if ($value == '') {
                 continue;
@@ -1604,32 +1602,32 @@ class Jevix
                 continue;
             }
 
-            if (preg_match('/javascript:/ui', html_entity_decode($value, $this->eFlags, 'UTF-8'))) {
+            if (\preg_match('/javascript:/ui', \html_entity_decode($value, $this->eFlags, 'UTF-8'))) {
                 $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
 
                 continue;
             }
 
             // Если есть список разрешённых параметров тега
-            if (is_array($paramAllowedValues)) {
+            if (\is_array($paramAllowedValues)) {
                 // проверка на список доменов
                 if (
                     isset($paramAllowedValues['#domain'])
-                    && is_array($paramAllowedValues['#domain'])
+                    && \is_array($paramAllowedValues['#domain'])
                 ) {
                     $bOK       = false;
                     $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
 
                     // Support path-dependent rules per domain
                     foreach ($paramAllowedValues['#domain'] as $sDomain => $sPathRegex) {
-                        if (is_int($sDomain)) {
+                        if (\is_int($sDomain)) {
                             $sDomain    = $sPathRegex;
                             $sPathRegex = '';
                         }
 
-                        $sDomain = preg_quote($sDomain);
+                        $sDomain = \preg_quote($sDomain);
 
-                        if (preg_match('@^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/' . $sPathRegex . '@ui', $value)) {
+                        if (\preg_match('@^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/' . $sPathRegex . '@ui', $value)) {
                             $bOK = true;
                             break;
                         }
@@ -1641,7 +1639,7 @@ class Jevix
                         continue;
                     }
 
-                } elseif (! in_array($value, $paramAllowedValues)) {
+                } elseif (! \in_array($value, $paramAllowedValues)) {
                     $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
 
                     continue;
@@ -1655,13 +1653,13 @@ class Jevix
                 $paramAllowedValues = $this->defaultTagParamRules[$param];
             }
 
-            if (is_string($paramAllowedValues)) {
+            if (\is_string($paramAllowedValues)) {
                 if (
                     isset($paramAllowedValues[1])
                     && '[' === $paramAllowedValues[0]
                     && ']' === $paramAllowedValues[-1]
                 ) {
-                    if (! preg_match(substr($paramAllowedValues, 1, -1), $value)) {
+                    if (! \preg_match(\substr($paramAllowedValues, 1, -1), $value)) {
                         $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
 
                         continue;
@@ -1670,7 +1668,7 @@ class Jevix
                 } else {
                     switch ($paramAllowedValues) {
                         case '#int':
-                            if (! is_numeric($value)) {
+                            if (! \is_numeric($value)) {
                                 $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
 
                                 continue(2);
@@ -1678,30 +1676,33 @@ class Jevix
                             break;
 
                         case '#text':
-                            $value = htmlspecialchars($value);
+                            $value = \htmlspecialchars($value);
                             break;
 
                         case '#link':
                             // Первый символ должен быть a-z, 0-9, #, / или точка
-                            if (! preg_match('/^[a-z0-9\/\#\.]/ui', $value)) {
+                            if (! \preg_match('/^[a-z0-9\/\#\.]/ui', $value)) {
                                 $this->errors[] = ['Недопустимое значение первого символа атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
 
                                 continue(2);
 
                             // Пропускаем относительные url и ipv6
-                            } elseif (preg_match('/^(\.\.\/|\/|\.|\#)/ui', $value)) {
+                            } elseif (\preg_match('/^(\.\.\/|\/|\.|\#)/ui', $value)) {
                                 break;
                             }
 
                             // Если нет указания протокола:
                             $sProtocol = '(' . $this->_getAllowedProtocols('#link') . ')' . ($this->_getSkipProtocol('#link') ? '?' : '');
 
-                            if (! preg_match('/^' . $sProtocol . '/ui', $value)) {
+                            if (! \preg_match('/^' . $sProtocol . '/ui', $value)) {
                                 // Нет слэшей и адрес похож на почту
-                                if (preg_match('/.+@.+\..+/i', $value) && !preg_match('/\//', $value)) {
+                                if (
+                                    \preg_match('/.+@.+\..+/i', $value)
+                                    && ! \preg_match('/\//', $value)
+                                ) {
                                     $value = 'mailto:' . $value;
                                 // Или адрес похож на домен
-                                } elseif (preg_match('/\.[a-z]{2,}+/ui', $value)) {
+                                } elseif (\preg_match('/\.[a-z]{2,}+/ui', $value)) {
                                     $value = 'http://' . $value;
                                 }
                             }
@@ -1710,13 +1711,13 @@ class Jevix
 
                         case '#image':
                             // Пропускаем относительные url и ipv6
-                            if (preg_match('/^(\.\.\/|\/|\.)/ui', $value)) {
+                            if (\preg_match('/^(\.\.\/|\/|\.)/ui', $value)) {
                                 // HTTP в начале если нет
                                 $sProtocol = '(' . $this->_getAllowedProtocols('#image') . ')' . ($this->_getSkipProtocol('#image') ? '?' : '');
 
                                 if (
-                                    ! preg_match('@^' . $sProtocol . '\/\/@ui', $value)
-                                    && ! preg_match('/^\//ui', $value)
+                                    ! \preg_match('@^' . $sProtocol . '\/\/@ui', $value)
+                                    && ! \preg_match('/^\//ui', $value)
                                 ) {
                                     $value = 'http://' . $value;
                                 }
@@ -1724,9 +1725,9 @@ class Jevix
                                 break;
 
                             // Если нет указания протокола:
-                            } elseif (! preg_match('/^(http|https):\/\//ui', $value)) {
+                            } elseif (! \preg_match('/^(http|https):\/\//ui', $value)) {
                                 // Но адрес похож на домен с картинкой, то добавляем http
-                                if (preg_match('/\.[a-z]{2,}+.*\./ui', $value)) {
+                                if (\preg_match('/\.[a-z]{2,}+.*\./ui', $value)) {
                                     $value = 'http://' . $value;
                                 }
                             }
@@ -1741,7 +1742,7 @@ class Jevix
 
         // Проверка обязятельных параметров тега
         // Если нет обязательных параметров возвращаем только контент
-        $requiredParams = isset($tagRules[self::TR_PARAM_REQUIRED]) ? array_keys($tagRules[self::TR_PARAM_REQUIRED]) : [];
+        $requiredParams = isset($tagRules[self::TR_PARAM_REQUIRED]) ? \array_keys($tagRules[self::TR_PARAM_REQUIRED]) : [];
 
         if ($requiredParams) {
             foreach ($requiredParams as $requiredParam) {
@@ -1756,7 +1757,7 @@ class Jevix
             foreach ($tagRules[self::TR_PARAM_AUTO_ADD] as $name => $aValue) {
                 // If there isn't such attribute - setup it
                 if (
-                    ! array_key_exists($name, $resParams)
+                    ! \array_key_exists($name, $resParams)
                     || (
                         $aValue['rewrite']
                         && $resParams[$name] != $aValue['value']
@@ -1782,28 +1783,28 @@ class Jevix
             $resParamsList = $resParams;
 
             foreach ($resParamsList as $param => $value) {
-                $value = mb_strtolower($value, 'UTF-8');
+                $value = \mb_strtolower($value, 'UTF-8');
 
                 if (isset($aRuleCombin[$param]['combination'][$value])) {
                     foreach ($aRuleCombin[$param]['combination'][$value] as $sAttr => $mValue) {
                         if (isset($resParams[$sAttr])) {
                             $bOK         = false;
-                            $sValueParam = mb_strtolower($resParams[$sAttr], 'UTF-8');
+                            $sValueParam = \mb_strtolower($resParams[$sAttr], 'UTF-8');
 
-                            if (is_string($mValue)) {
+                            if (\is_string($mValue)) {
                                 if ($mValue == $sValueParam) {
                                     $bOK = true;
                                 }
 
-                            } elseif (is_array($mValue)) {
-                                if (isset($mValue['#domain']) && is_array($mValue['#domain'])) {
-                                    if (! preg_match('/javascript:/ui', $sValueParam)) {
+                            } elseif (\is_array($mValue)) {
+                                if (isset($mValue['#domain']) && \is_array($mValue['#domain'])) {
+                                    if (! \preg_match('/javascript:/ui', $sValueParam)) {
                                         $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
 
                                         foreach ($mValue['#domain'] as $sDomain) {
                                             $sDomain = preg_quote($sDomain);
 
-                                            if (preg_match('@^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/@ui', $sValueParam)) {
+                                            if (\preg_match('@^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/@ui', $sValueParam)) {
                                                 $bOK = true;
                                                 break;
                                             }
@@ -1830,12 +1831,12 @@ class Jevix
             }
         }
 
-        // Применить htmlspecialchars() к значениям атрибутов
-        $resParams = array_map([$this, 'e'], $resParams);
+        // Применить \htmlspecialchars() к значениям атрибутов
+        $resParams = \array_map([$this, 'e'], $resParams);
 
         // Если тег обрабатывает "полным" колбеком
         if (isset($tagRules[self::TR_TAG_CALLBACK_FULL])) {
-            $text = call_user_func($tagRules[self::TR_TAG_CALLBACK_FULL], $content, $resParams, $tag);
+            $text = \call_user_func($tagRules[self::TR_TAG_CALLBACK_FULL], $content, $resParams, $tag);
 
         } else {
             // Собираем тег
@@ -1932,7 +1933,10 @@ class Jevix
                 }
 
             // Коментарий <!-- -->
-            } elseif ($this->curCh == '<' && $this->comment()) {
+            } elseif (
+                $this->curCh == '<'
+                && $this->comment()
+            ) {
                 continue;
 
             // Конец тега или символ <
@@ -2167,7 +2171,7 @@ class Jevix
                 return false;
             }
 
-            $entityCh = html_entity_decode("&#$entityCode;", ENT_COMPAT, 'UTF-8');
+            $entityCh = \html_entity_decode("&#$entityCode;", ENT_COMPAT, 'UTF-8');
 
             return true;
 
@@ -2182,7 +2186,7 @@ class Jevix
                 return false;
             }
 
-            $entityCh = html_entity_decode("&$entityName;", ENT_COMPAT, 'UTF-8');
+            $entityCh = \html_entity_decode("&$entityName;", ENT_COMPAT, 'UTF-8');
 
             return true;
         }
@@ -2238,7 +2242,7 @@ class Jevix
      */
     protected function makeQuote($closed, $level)
     {
-        $levels = count($this->textQuotes);
+        $levels = \count($this->textQuotes);
 
         if ($level > $levels) {
             $level = $levels;
@@ -2358,7 +2362,7 @@ class Jevix
                     $this->curParentTag
                     && isset($this->tagsRules[$this->curParentTag][self::TR_TAG_NO_AUTO_BR])
                     && (
-                        is_null($this->openedTag)
+                        \is_null($this->openedTag)
                         || isset($this->tagsRules[$this->openedTag][self::TR_TAG_NO_AUTO_BR])
                     )
                 ) {
@@ -2423,7 +2427,7 @@ class Jevix
                 $this->getCh();
             }
 
-            if (! mb_strlen($url, 'UTF-8')) {
+            if (! \mb_strlen($url, 'UTF-8')) {
                 $this->restoreState();
 
                 return false;
@@ -2437,7 +2441,7 @@ class Jevix
                 $this->getCh();
             }
 
-            if (! mb_strlen($url, 'UTF-8')) {
+            if (! \mb_strlen($url, 'UTF-8')) {
                 $this->restoreState();
 
                 return false;
@@ -2451,7 +2455,7 @@ class Jevix
                 $this->getCh();
             }
 
-            if (! mb_strlen($url, 'UTF-8')) {
+            if (! \mb_strlen($url, 'UTF-8')) {
                 $this->restoreState();
 
                 return false;
@@ -2463,10 +2467,10 @@ class Jevix
         }
 
         if (! empty($url)) {
-            if (preg_match('/[\.\,\-\?\!\:\;]+$/', $url, $matches)) {
-                $count = strlen($matches[0]);
-                $url   = substr($url, 0, $count * -1);
-                $href  = substr($href, 0, $count * -1);
+            if (\preg_match('/[\.\,\-\?\!\:\;]+$/', $url, $matches)) {
+                $count = \strlen($matches[0]);
+                $url   = \substr($url, 0, $count * -1);
+                $href  = \substr($href, 0, $count * -1);
                 $this->goToPosition($this->curPos - $count);
             }
 
@@ -2503,11 +2507,11 @@ class Jevix
 
     protected function e(string $str): string
     {
-        return htmlspecialchars($str, $this->eFlags | ENT_SUBSTITUTE, 'UTF-8', false);
+        return \htmlspecialchars($str, $this->eFlags | \ENT_SUBSTITUTE, 'UTF-8', false);
     }
 
     protected function eDecode(string $str): string
     {
-        return htmlspecialchars_decode($str, $this->eFlags);
+        return \htmlspecialchars_decode($str, $this->eFlags);
     }
 }
