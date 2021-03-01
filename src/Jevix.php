@@ -1079,7 +1079,7 @@ class Jevix
             ($this->curChClass & self::NAME) == self::NAME
             || (
                 $minus
-                && $this->curCh == '-')
+                && $this->curCh == '-'
             )
         ) {
             $name .= $this->curCh;
