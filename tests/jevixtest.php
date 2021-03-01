@@ -40,13 +40,9 @@ $jevix->cfgSetTagParamsRequired('a', 'href');
 
 // 8. Устанавливаем атрибуты тегов, которые будут добавлятся автоматически
 $jevix->cfgSetTagParamDefault('a', 'rel', null, true);
-//$jevix->cfgSetTagParamsAutoAdd('a', array('rel' => 'nofollow'));
-//$jevix->cfgSetTagParamsAutoAdd('a', array('name'=>'rel', 'value' => 'nofollow', 'rewrite' => true));
 
 $jevix->cfgSetTagParamDefault('img', 'width',  '300px');
 $jevix->cfgSetTagParamDefault('img', 'height', '300px');
-//$jevix->cfgSetTagParamsAutoAdd('img', array('width' => '300', 'height' => '300'));
-//$jevix->cfgSetTagParamsAutoAdd('img', array(array('name'=>'width', 'value' => '300'), array('name'=>'height', 'value' => '300') ));
 
 // 9. Устанавливаем автозамену
 $jevix->cfgSetAutoReplace(array('+/-', '(c)', '(r)'), array('±', '©', '®'));
