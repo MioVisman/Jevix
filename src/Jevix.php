@@ -2497,10 +2497,10 @@ class Jevix
 
         if (! empty($url)) {
             if (\preg_match('/[\.\,\-\?\!\:\;]+$/', $url, $matches)) {
-                $count = \strlen($matches[0]);
-                $url   = \substr($url, 0, $count * -1);
-                $href  = \substr($href, 0, $count * -1);
-                $this->goToPosition($this->curPos - $count);
+                $count = - \strlen($matches[0]);
+                $url   = \substr($url, 0, $count);
+                $href  = \substr($href, 0, $count);
+                $this->goToPosition($this->curPos + $count);
             }
 
             return true;
