@@ -41,7 +41,7 @@ $jevix->cfgSetTagParamsRequired('a', 'href');
 //$jevix->cfgSetTagChilds('ul', 'li', true, false);
 
 // 8. Устанавливаем атрибуты тегов, которые будут добавлятся автоматически
-$jevix->cfgSetTagParamDefault('a', 'rel', null, true);
+$jevix->cfgSetTagParamDefault('a', 'rel', '', true);
 
 $jevix->cfgSetTagParamDefault('img', 'width',  '300px');
 $jevix->cfgSetTagParamDefault('img', 'height', '300px');
@@ -62,7 +62,7 @@ $jevix->cfgSetAutoLinkMode(true);
 $jevix->cfgSetTagNoTypography('code');
 
 // 14. Ставим колбэк
-$jevix->cfgSetTagCallback('h6', 'test_callback');
+$jevix->cfgSetTagCallback('h6', 'MioVisman\\Jevix\\test_callback');
 function test_callback($content){
 	return mb_strtoupper($content, 'UTF-8');
 }
@@ -216,4 +216,3 @@ Array
 
 )
 -------------*/
-?>
