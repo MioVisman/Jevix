@@ -5,6 +5,7 @@
 + Code style
 + Change the structure of the error array
 + Delete cfgSetTagParamsAutoAdd() method
++ Change the algorithm for converting special characters inside tag attributes
 
 1.2.1
 -------
