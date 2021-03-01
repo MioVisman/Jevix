@@ -1609,6 +1609,8 @@ class Jevix
 
             // Если есть список разрешённых параметров тега
             if (\is_array($paramAllowedValues)) {
+                $bOK = true;
+
                 // проверка на список доменов
                 if (
                     isset($paramAllowedValues['#domain'])
@@ -1632,13 +1634,11 @@ class Jevix
                         }
                     }
 
-                    if (! $bOK) {
-                        $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
-
-                        continue;
-                    }
-
                 } elseif (! \in_array($value, $paramAllowedValues)) {
+                    $bOK = false;
+                }
+
+                if (! $bOK) {
                     $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
 
                     continue;
@@ -1653,24 +1653,22 @@ class Jevix
             }
 
             if (\is_string($paramAllowedValues)) {
+                $bOK = true;
+
                 if (
                     isset($paramAllowedValues[1])
                     && '[' === $paramAllowedValues[0]
                     && ']' === $paramAllowedValues[-1]
                 ) {
                     if (! \preg_match(\substr($paramAllowedValues, 1, -1), $value)) {
-                        $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
-
-                        continue;
+                        $bOK = false;
                     }
 
                 } else {
                     switch ($paramAllowedValues) {
                         case '#int':
                             if (! \is_numeric($value)) {
-                                $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
-
-                                continue(2);
+                                $bOK = false;
                             }
 
                             break;
@@ -1683,9 +1681,7 @@ class Jevix
                                     && (int) $matches[1] > 100
                                 )
                             ) {
-                                $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
-
-                                continue(2);
+                                $bOK = false;
                             }
 
                             break;
@@ -1697,9 +1693,9 @@ class Jevix
                         case '#link':
                             // Первый символ должен быть a-z, 0-9, #, / или точка
                             if (! \preg_match('/^[a-z0-9\/\#\.]/ui', $value)) {
-                                $this->errors[] = ['Недопустимое значение первого символа атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+                                $bOK = false;
 
-                                continue(2);
+                                break;
 
                             // Пропускаем относительные url и ipv6
                             } elseif (\preg_match('/^(\.\.\/|\/|\.|\#)/ui', $value)) {
@@ -1749,6 +1745,12 @@ class Jevix
 
                             break;
                     }
+                }
+
+                if (! $bOK) {
+                    $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+
+                    continue;
                 }
             }
 
