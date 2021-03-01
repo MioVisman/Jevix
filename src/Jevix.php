@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Jevix — средство автоматического применения правил набора текстов,
  * наделённое способностью унифицировать разметку HTML/XML документов,
@@ -8,12 +9,18 @@
  * https://github.com/livestreet/livestreet-framework/blob/master/libs/vendor/Jevix/jevix.class.php
  * https://raw.github.com/bezumkin/modx-jevix/master/core/components/jevix/model/jevix/jevix.core.php
  *
- * @author ur001 <ur001ur001@gmail.com>, http://ur001.habrahabr.ru
- * @author https://github.com/altocms/Jevix
- * @author Agel_Nash <agel-nash@mail.ru>
- *
- * @version 1.2.0
+ * @author     ur001 <ur001ur001@gmail.com>, http://ur001.habrahabr.ru
+ * @author     https://github.com/altocms/Jevix
+ * @author     Agel_Nash <agel-nash@mail.ru>
+ * @author     Visman <mio.visman@yandex.ru>
+ * @link       https://github.com/MioVisman/Jevix
+ * @license    https://opensource.org/licenses/MIT The MIT License (MIT)
+ * @version    2.0.0
  */
+
+namespace MioVisman\Jevix;
+
+use Exception;
 
 class Jevix
 {

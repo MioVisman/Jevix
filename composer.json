@@ -7,10 +7,13 @@
     {"name": "livestreet framework"},
     {"name": "Bezumkin"},
     {"name": "Roman Shamritskiy", "email": "roman@litgroup.ru"},
-    {"name": "Evgeniy Borisov", "email": "agel-nash@mail.ru"}
+    {"name": "Evgeniy Borisov", "email": "agel-nash@mail.ru"},
+    {"name": "Visman", "email": "mio.visman@yandex.ru", "homepage": "https://github.com/MioVisman"}
   ],
   "autoload": {
-    "psr-0": {"Jevix": "src/"}
+    "psr-4": {
+        "MioVisman\\Jevix\\": "src/"
+    }
   },
   "require": {
     "php": ">=7.3.0",
