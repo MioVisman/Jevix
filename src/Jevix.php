@@ -780,7 +780,7 @@ class Jevix
                     $hash = sha1(serialize($v2));
 
                     $replacements[$hash] = $to;
-                    $this->text = str_replace($v2, $hash, $this->text);
+                    $this->text          = str_replace($v2, $hash, $this->text);
                 }
             }
         }
@@ -801,7 +801,7 @@ class Jevix
         $this->errors    = [];
         $this->skipSpaces();
         $this->anyThing($content);
-        $errors = $this->errors;
+        $errors          = $this->errors;
 
         if (! empty($this->autoReplace)) {
             $content = str_ireplace($this->autoReplace['from'], $this->autoReplace['to'], $content);
@@ -951,7 +951,10 @@ class Jevix
         $len  = mb_strlen($str, 'UTF-8');
         $test = '';
 
-        while ($len-- && $this->curChClass) {
+        while (
+            $len--
+            && $this->curChClass
+        ) {
             $test .= $this->curCh;
             $this->getCh();
         }
@@ -991,9 +994,9 @@ class Jevix
      */
     protected function skipUntilStr($str)
     {
-        $str = $this->strToArray($str);
+        $str     = $this->strToArray($str);
         $firstCh = $str[0];
-        $len = count($str);
+        $len     = count($str);
 
         while ($this->curChClass) {
             if ($this->curCh == $firstCh) {
@@ -1054,7 +1057,7 @@ class Jevix
     {
         while ($this->curChClass == self::SPACE) {
             $this->getCh();
-            $count++;
+            ++$count;
         }
 
         return $count > 0;
@@ -1077,7 +1080,13 @@ class Jevix
             return false;
         }
 
-        while ((($this->curChClass & self::NAME) == self::NAME || ($minus && $this->curCh == '-'))) {
+        while (
+            ($this->curChClass & self::NAME) == self::NAME
+            || (
+                $minus
+                && $this->curCh == '-')
+            )
+        ) {
             $name .= $this->curCh;
             $this->getCh();
         }
@@ -1115,7 +1124,7 @@ class Jevix
 
         // Сохраняем кавычки и состояние
         //$oldQuotesopen = $this->quotesOpened;
-        $oldState = $this->state;
+        $oldState      = $this->state;
         $oldNoTypoMode = $this->noTypoMode;
         //$this->quotesOpened = 0;
 
@@ -1130,7 +1139,7 @@ class Jevix
 
         } elseif (! empty($this->tagsRules[$tag][self::TR_TAG_NO_TYPOGRAPHY])) {
             $this->noTypoMode = true;
-            $this->state = self::STATE_INSIDE_TAG;
+            $this->state      = self::STATE_INSIDE_TAG;
 
         } elseif (
             array_key_exists($tag, $this->tagsRules)
@@ -1170,7 +1179,7 @@ class Jevix
         }
 
         // Восстанавливаем предыдущее состояние и счетчик кавычек
-        $this->state = $oldState;
+        $this->state      = $oldState;
         $this->noTypoMode = $oldNoTypoMode;
 
         //$this->quotesOpened = $oldQuotesopen;
@@ -1440,7 +1449,13 @@ class Jevix
             // Нормальный параметр с кавычкамию Получаем пока не кавычки и не конец
             $escape = false;
 
-            while ($this->curChClass && ($this->curCh != $quote || $escape)) {
+            while (
+                $this->curChClass
+                && (
+                    $this->curCh != $quote
+                    || $escape
+                )
+            ) {
                 $escape = false;
                 // Экранируем символы HTML которые не могут быть в параметрах
                 $value .= $this->entities1[$this->curCh] ?? $this->curCh;
@@ -1452,9 +1467,14 @@ class Jevix
 
                 $this->getCh();
             }
+
         } else {
             // долбаный параметр без кавычек. получаем его пока не пробел и не > и не конец
-            while ($this->curChClass && !($this->curChClass & self::SPACE) && $this->curCh != '>') {
+            while (
+                $this->curChClass
+                && ! ($this->curChClass & self::SPACE)
+                && $this->curCh != '>'
+            ) {
                 // Экранируем символы HTML которые не могут быть в параметрах
                 $value .= $this->entities1[$this->curCh] ?? $this->curCh;
                 $this->getCh();
@@ -1516,7 +1536,7 @@ class Jevix
     protected function makeTag($tag, $params, $content, $short, $parentTag = null)
     {
         $this->curParentTag = $parentTag;
-        $tag = mb_strtolower($tag, 'UTF-8');
+        $tag                = mb_strtolower($tag, 'UTF-8');
 
         // Получаем правила фильтрации тега
         $tagRules = $this->tagsRules[$tag] ?? null;
@@ -1586,13 +1606,13 @@ class Jevix
                         continue;
                     }
 
-                    $bOK = false;
+                    $bOK       = false;
                     $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
 
                     // Support path-dependent rules per domain
                     foreach ($paramAllowedValues['#domain'] as $sDomain => $sPathRegex) {
                         if (is_int($sDomain)) {
-                            $sDomain = $sPathRegex;
+                            $sDomain    = $sPathRegex;
                             $sPathRegex = '';
                         }
 
@@ -1767,7 +1787,7 @@ class Jevix
                 if (isset($aRuleCombin[$param]['combination'][$value])) {
                     foreach ($aRuleCombin[$param]['combination'][$value] as $sAttr => $mValue) {
                         if (isset($resParams[$sAttr])) {
-                            $bOK = false;
+                            $bOK         = false;
                             $sValueParam = mb_strtolower($resParams[$sAttr], 'UTF-8');
 
                             if (is_string($mValue)) {
@@ -2245,7 +2265,10 @@ class Jevix
 
         // Первый символ может быть <, это значит что tag() вернул false
         // и < к тагу не относится
-        while ($this->curCh != '<' && $this->curChClass) {
+        while (
+            $this->curCh != '<'
+            && $this->curChClass
+        ) {
             $brCount     = 0;
             $spCount     = 0;
             $quote       = null;
