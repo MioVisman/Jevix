@@ -83,7 +83,7 @@ class Jevix
     protected $tagsStack;
     protected $openedTag;
     protected $autoReplace;              // Автозамена
-    protected $allowedProtocols        = ['#img' => 'http:|https:', '#link' => 'http:|https:|ftp:|mailto:'];
+    protected $allowedProtocols        = ['#image' => 'http:|https:', '#link' => 'http:|https:|ftp:|mailto:'];
     protected $allowedProtocolsDefault = ['http', 'https', 'ftp'];
     protected $skipProtocol            = [];
     protected $autoPregReplace;          // Автозамена с поддержкой регулярных выражений
@@ -1712,6 +1712,7 @@ class Jevix
                                     && ! \preg_match('/\//', $value)
                                 ) {
                                     $value = 'mailto:' . $value;
+
                                 // Или адрес похож на домен
                                 } elseif (\preg_match('/\.[a-z]{2,}+/ui', $value)) {
                                     $value = 'http://' . $value;
