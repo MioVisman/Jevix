@@ -1164,7 +1164,7 @@ class Jevix
             $isTagClose
             && $tag != $closeTag
         ) {
-            $this->eror("Неверный закрывающийся тег $closeTag. Ожидалось закрытие $tag");
+            $this->errors[] = ['Неверный закрывающийся тег %1$s. Ожидалось закрытие %2$s', $closeTag, $tag];
             //$this->restoreState();
         }
 
@@ -1536,10 +1536,11 @@ class Jevix
         }
 
         // Если тег находится внутри другого - может ли он там находится?
-        if ($parentTagIsContainer) {
-            if (! isset($this->tagsRules[$parentTag][self::TR_TAG_CHILD_TAGS][$tag])) {
-                return '';
-            }
+        if (
+            $parentTagIsContainer
+            && ! isset($this->tagsRules[$parentTag][self::TR_TAG_CHILD_TAGS][$tag])
+        ) {
+            return '';
         }
 
         // Тег может находится только внтури другого тега
@@ -1575,7 +1576,8 @@ class Jevix
                     && is_array($paramAllowedValues['#domain'])
                 ) {
                     if (preg_match('/javascript:/ui', $value)) {
-                        $this->eror('Попытка вставить JavaScript в URI');
+                        $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
+
                         continue;
                     }
 
@@ -1598,11 +1600,14 @@ class Jevix
                     }
 
                     if (! $bOK) {
-                        $this->eror("Недопустимое значение для атрибута тега $tag $param=$value");
+                        $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+
                         continue;
                     }
+
                 } elseif (! in_array($value, $paramAllowedValues)) {
-                    $this->eror("Недопустимое значение для атрибута тега $tag $param=$value");
+                    $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+
                     continue;
                 }
             // Если атрибут тега помечен как разрешённый, но правила не указаны - смотрим в массив стандартных правил для атрибутов
@@ -1619,14 +1624,17 @@ class Jevix
                     && substr($paramAllowedValues, -1) == ']'
                 ) {
                     if (! preg_match(substr($paramAllowedValues, 1, strlen($paramAllowedValues) - 2), $value)) {
-                        $this->eror("Недопустимое значение для атрибута тега $tag $param=$value");
+                        $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+
                         continue;
                     }
+
                 } else {
                     switch ($paramAllowedValues) {
                         case '#int':
                             if (! is_numeric($value)) {
-                                $this->eror("Недопустимое значение для атрибута тега $tag $param=$value. Ожидалось число");
+                                $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+
                                 continue(2);
                             }
                             break;
@@ -1638,11 +1646,13 @@ class Jevix
                         case '#link':
                             // Ява-скрипт в ссылке
                             if (preg_match('/javascript:/ui', $value)) {
-                                $this->eror('Попытка вставить JavaScript в URI');
+                                $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
+
                                 continue(2);
                             // Первый символ должен быть a-z, 0-9, #, / или точка
                             } elseif (! preg_match('/^[a-z0-9\/\#\.]/ui', $value)) {
-                                $this->eror('URI: Первый символ адреса должен быть буквой или цифрой');
+                                $this->errors[] = ['Недопустимое значение первого символа атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+
                                 continue(2);
                             // Пропускаем относительные url и ipv6
                             } elseif (preg_match('/^(\.\.\/|\/|\.|\#)/ui', $value)) {
@@ -1665,7 +1675,8 @@ class Jevix
                         case '#image':
                             // Ява-скрипт в пути к картинке
                             if (preg_match('/javascript:/ui', $value)) {
-                                $this->eror('Попытка вставить JavaScript в пути к изображению');
+                                $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
+
                                 continue(2);
                             // Пропускаем относительные url и ipv6
                             } elseif (preg_match('/^(\.\.\/|\/|\.)/ui', $value)) {
@@ -1896,7 +1907,7 @@ class Jevix
 
                         return false;
                     } else {
-                        $this->eror('Не ожидалось закрывающегося тега ' . $name);
+                        $this->errors[] = ['Не ожидалось закрывающегося тега %1$s', $name];
                     }
                 } else {
                     if ($this->state != self::STATE_INSIDE_NOTEXT_TAG) {
@@ -2384,27 +2395,6 @@ class Jevix
 
             return false;
         }
-    }
-
-    /**
-     * @param string $message
-     */
-    protected function eror($message)
-    {
-        $str = '';
-        $strEnd = min($this->curPos + 8, $this->textLen);
-
-        for ($i = $this->curPos; $i < $strEnd; $i++) {
-            $str .= $this->textBuf[$i];
-        }
-
-        $this->errors[] = [
-            'message' => $message,
-            'pos'     => $this->curPos,
-            'ch'      => $this->curCh,
-            'line'    => 0,
-            'str'     => $str,
-        ];
     }
 
     /**
