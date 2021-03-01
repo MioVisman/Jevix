@@ -588,37 +588,32 @@ class Jevix
             $this->tagsRules[$tag][self::TR_PARAM_COMBINATION] = [];
         }
 
-        /**
-         * Переводим в нижний регистр значений параметров
-         * Ужасный код
-         */
-        $aCombinationsResult = [];
-
-        foreach ($aCombinations as $k => $aAttr) {
-            $aAttrResult = [];
-
-            foreach ($aAttr as $kk => $mValue) {
-                if (is_string($mValue)) {
-                    $mValue = mb_strtolower($mValue, 'UTF-8');
-
-                } elseif (is_array($mValue)) {
-                    foreach ($mValue as $kkk => $vvv) {
-                        if (is_string($vvv)) {
-                            $mValue[$kkk] = mb_strtolower($vvv, 'UTF-8');
-                        }
-                    }
-                }
-
-                $aAttrResult[$kk] = $mValue;
-            }
-
-            $aCombinationsResult[mb_strtolower($k, 'UTF-8')] = $aAttrResult;
-        }
-
         $this->tagsRules[$tag][self::TR_PARAM_COMBINATION][$param] = [
-            'combination' => $aCombinationsResult,
+            'combination' => $this->arrayToLowerRec($aCombinations),
             'remove'      => $bRemove,
         ];
+    }
+
+    protected function arrayToLowerRec(array $array)
+    {
+        $result = [];
+
+        foreach ($array as $key => $value) {
+            if (is_string($key)) {
+                $key = mb_strtolower($key, 'UTF-8');
+            }
+
+            if (is_array($value)) {
+                $value = $this->arrayToLowerRec($value);
+
+            } elseif (is_string($value)) {
+                $value = mb_strtolower($value, 'UTF-8');
+            }
+
+            $result[$key] = $value;
+        }
+
+        return $result;
     }
 
     /**
