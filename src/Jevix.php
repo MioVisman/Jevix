@@ -1650,10 +1650,11 @@ class Jevix
 
             if (is_string($paramAllowedValues)) {
                 if (
-                    substr($paramAllowedValues, 0, 1) == '['
-                    && substr($paramAllowedValues, -1) == ']'
+                    isset($paramAllowedValues[1])
+                    && '[' === $paramAllowedValues[0]
+                    && ']' === $paramAllowedValues[-1]
                 ) {
-                    if (! preg_match(substr($paramAllowedValues, 1, strlen($paramAllowedValues) - 2), $value)) {
+                    if (! preg_match(substr($paramAllowedValues, 1, -1), $value)) {
                         $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
 
                         continue;
