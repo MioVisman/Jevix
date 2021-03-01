@@ -1,3 +1,11 @@
+2.0.0
+-------
++ Require PHP 7.3.0+
++ Delete function.php
++ Code style
++ Change the structure of the error array
++ Delete cfgSetTagParamsAutoAdd() method
+
 1.2.1
 -------
 + PhpDoc
