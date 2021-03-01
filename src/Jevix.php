@@ -13,9 +13,9 @@
  * @author     https://github.com/altocms/Jevix
  * @author     Agel_Nash <agel-nash@mail.ru>
  * @author     Visman <mio.visman@yandex.ru>
+ * @version    2.0.0
  * @link       https://github.com/MioVisman/Jevix
  * @license    https://opensource.org/licenses/MIT The MIT License (MIT)
- * @version    2.0.0
  */
 
 namespace MioVisman\Jevix;
@@ -62,8 +62,8 @@ class Jevix
     protected $defaultTagParamRules = [
         'href'   => '#link',
         'src'    => '#image',
-        'width'  => '#int',
-        'height' => '#int',
+        'width'  => '#size',
+        'height' => '#size',
         'text'   => '#text',
         'title'  => '#text'
     ];
@@ -337,7 +337,7 @@ class Jevix
     }
 
     /**
-     * КОНФИГУРАЦИЯ: Разрешение или запрет тегов
+     * КОНФИГУРАЦИЯ: Разрешение тегов
      * Все не разрешённые теги считаются запрещёнными
      * @param array|string $tags тег(и)
      * @throws Exception
@@ -415,7 +415,7 @@ class Jevix
      */
     public function cfgSetTagBlockType($tags): void
     {
-        $this->_cfgSetTagsFlag($tags, self::TR_TAG_BLOCK_TYPE, true);
+        $this->_cfgSetTagsFlag($tags, self::TR_TAG_BLOCK_TYPE, true, false);
     }
 
     /**
@@ -1672,10 +1672,26 @@ class Jevix
 
                                 continue(2);
                             }
+
+                            break;
+
+                        case '#size':
+                            if (
+                                ! \preg_match('/^([1-9]\d*)(%)?$/', $value, $matches)
+                                || (
+                                    ! empty($matches[2])
+                                    && (int) $matches[1] > 100
+                                )
+                            ) {
+                                $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+
+                                continue(2);
+                            }
+
                             break;
 
                         case '#text':
-                            $value = \htmlspecialchars($value);
+                            //$value = \htmlspecialchars($value);
                             break;
 
                         case '#link':
