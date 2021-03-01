@@ -1601,7 +1601,18 @@ class Jevix
                 continue;
             }
 
-            if (\preg_match('/javascript:/ui', \html_entity_decode($value, $this->eFlags, 'UTF-8'))) {
+            // Попытка раскодировать все сущности в значении атрибута, например: j&#X41vascript:alert(1)
+            $valueDecode = \preg_replace_callback(
+                '%&#[xX]?\d+(?![;\d])%',
+                function ($matches) {
+                    $symbol = \html_entity_decode($matches[0] . ';', $this->eFlags, 'UTF-8');
+
+                    return empty($symbol) ? $matches[0] : $symbol;
+                },
+                \html_entity_decode($value, $this->eFlags, 'UTF-8')
+            );
+
+            if (\preg_match('/javascript:/i', $valueDecode)) {
                 $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
 
                 continue;
