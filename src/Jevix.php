@@ -81,6 +81,7 @@ class Jevix
     protected $skipProtocol = [];
     protected $autoPregReplace; // Автозамена с поддержкой регулярных выражений
     protected $isXHTMLMode = true; // <br/>, <img/>
+    protected $eFlags = ENT_XHTML | ENT_QUOTES;
     protected $isAutoBrMode = true; // \n = <br/>
     protected $isAutoLinkMode = true;
     protected $br = "<br/>";
@@ -535,7 +536,10 @@ class Jevix
             $this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD] = [];
         }
 
-        $this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD][$param] = ['value' => $value, 'rewrite' => $isRewrite];
+        $this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD][$param] = [
+            'value'   => $value,
+            'rewrite' => $isRewrite,
+        ];
     }
 
     /**
@@ -712,6 +716,7 @@ class Jevix
     {
         $this->br          = $isXHTMLMode ? '<br/>' : '<br>';
         $this->isXHTMLMode = $isXHTMLMode;
+        $this->eFlags      = ($isXHTMLMode ? ENT_XHTML : ENT_HTML5) | ENT_QUOTES;
     }
 
     /**
@@ -1452,8 +1457,10 @@ class Jevix
                 )
             ) {
                 $escape = false;
-                // Экранируем символы HTML которые не могут быть в параметрах
-                $value .= $this->entities1[$this->curCh] ?? $this->curCh;
+#                // Экранируем символы HTML которые не могут быть в параметрах
+#                $value .= $this->entities1[$this->curCh] ?? $this->curCh;
+                // Экранировать будем в makeTag()
+                $value .= $this->curCh;
 
                 // Символ ескейпа <a href="javascript::alert(\"hello\")">
                 if ($this->curCh == '\\') {
@@ -1470,8 +1477,10 @@ class Jevix
                 && ! ($this->curChClass & self::SPACE)
                 && $this->curCh != '>'
             ) {
-                // Экранируем символы HTML которые не могут быть в параметрах
-                $value .= $this->entities1[$this->curCh] ?? $this->curCh;
+#                // Экранируем символы HTML которые не могут быть в параметрах
+#                $value .= $this->entities1[$this->curCh] ?? $this->curCh;
+                // Экранировать будем в makeTag()
+                $value .= $this->curCh;
                 $this->getCh();
             }
         }
@@ -1575,7 +1584,7 @@ class Jevix
 
         foreach ($params as $param => $value) {
             $param = mb_strtolower($param, 'UTF-8');
-            $value = trim($value);
+            $value = trim($this->eDecode($value));
 
             if ($value == '') {
                 continue;
@@ -1588,6 +1597,12 @@ class Jevix
                 continue;
             }
 
+            if (preg_match('/javascript:/ui', html_entity_decode($value, $this->eFlags, 'UTF-8'))) {
+                $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
+
+                continue;
+            }
+
             // Если есть список разрешённых параметров тега
             if (is_array($paramAllowedValues)) {
                 // проверка на список доменов
@@ -1595,12 +1610,6 @@ class Jevix
                     isset($paramAllowedValues['#domain'])
                     && is_array($paramAllowedValues['#domain'])
                 ) {
-                    if (preg_match('/javascript:/ui', $value)) {
-                        $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
-
-                        continue;
-                    }
-
                     $bOK       = false;
                     $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
 
@@ -1665,14 +1674,8 @@ class Jevix
                             break;
 
                         case '#link':
-                            // Ява-скрипт в ссылке
-                            if (preg_match('/javascript:/ui', $value)) {
-                                $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
-
-                                continue(2);
-
                             // Первый символ должен быть a-z, 0-9, #, / или точка
-                            } elseif (! preg_match('/^[a-z0-9\/\#\.]/ui', $value)) {
+                            if (! preg_match('/^[a-z0-9\/\#\.]/ui', $value)) {
                                 $this->errors[] = ['Недопустимое значение первого символа атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
 
                                 continue(2);
@@ -1698,14 +1701,8 @@ class Jevix
                             break;
 
                         case '#image':
-                            // Ява-скрипт в пути к картинке
-                            if (preg_match('/javascript:/ui', $value)) {
-                                $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
-
-                                continue(2);
-
                             // Пропускаем относительные url и ipv6
-                            } elseif (preg_match('/^(\.\.\/|\/|\.)/ui', $value)) {
+                            if (preg_match('/^(\.\.\/|\/|\.)/ui', $value)) {
                                 // HTTP в начале если нет
                                 $sProtocol = '(' . $this->_getAllowedProtocols('#image') . ')' . ($this->_getSkipProtocol('#image') ? '?' : '');
 
@@ -1824,6 +1821,9 @@ class Jevix
                 }
             }
         }
+
+        // Применить htmlspecialchars() к значениям атрибутов
+        $resParams = array_map([$this, 'e'], $resParams);
 
         // Если тег обрабатывает "полным" колбеком
         if (isset($tagRules[self::TR_TAG_CALLBACK_FULL])) {
@@ -2491,5 +2491,15 @@ class Jevix
     protected function _getSkipProtocol($sParam)
     {
         return ! empty($this->skipProtocol[$sParam]);
+    }
+
+    protected function e(string $str): string
+    {
+        return htmlspecialchars($str, $this->eFlags | ENT_SUBSTITUTE, 'UTF-8', false);
+    }
+
+    protected function eDecode(string $str): string
+    {
+        return htmlspecialchars_decode($str, $this->eFlags);
     }
 }
