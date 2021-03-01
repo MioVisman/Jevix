@@ -1831,12 +1831,12 @@ class Jevix
 
         } else {
             // Собираем тег
-            $text = '<' . $tag;
+            $text = "<{$tag}";
 
             // Параметры
             foreach ($resParams as $param => $value) {
                 if ($value != '') {
-                    $text .= ' ' . $param . '="' . $value . '"';
+                    $text .= " {$param}=\"{$value}\"";
                 }
             }
 
@@ -1848,7 +1848,7 @@ class Jevix
             }
 
             if (! $short) {
-                $text .= $content . '</' . $tag . '>';
+                $text .= "{$content}</{$tag}>";
             }
 
             if ($parentTagIsContainer) {
