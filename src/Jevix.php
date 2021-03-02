@@ -752,7 +752,7 @@ class Jevix
     protected function &strToArray(string $str): array
     {
         $chars = null;
-        \preg_match_all('/./su', $str, $chars);
+        \preg_match_all('%.%su', $str, $chars);
 
         return $chars[0];
     }
@@ -793,7 +793,7 @@ class Jevix
 
         // Авто растановка BR?
         if ($this->isAutoBrMode) {
-            $this->text = \preg_replace('/<br\/?>(\r\n|\n\r|\n)?/ui', $this->nl, $this->text);
+            $this->text = \preg_replace('%<br/?>\r?\n?%i', $this->nl, $this->text);
         }
 
         $this->textBuf   = $this->strToArray($this->text);
@@ -1615,7 +1615,7 @@ class Jevix
                 \html_entity_decode($value, $this->eFlags, 'UTF-8')
             );
 
-            if (\preg_match('/javascript:/i', $valueDecode)) {
+            if (\preg_match('%javascript:%i', $valueDecode)) {
                 $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
 
                 continue;
@@ -1632,6 +1632,7 @@ class Jevix
                 ) {
                     $bOK       = false;
                     $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
+                    $sProtocol = \preg_quote($sProtocol, '%');
 
                     // Support path-dependent rules per domain
                     foreach ($paramAllowedValues['#domain'] as $sDomain => $sPathRegex) {
@@ -1640,9 +1641,9 @@ class Jevix
                             $sPathRegex = '';
                         }
 
-                        $sDomain = \preg_quote($sDomain);
+                        $sDomain = \preg_quote($sDomain, '%');
 
-                        if (\preg_match('@^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/' . $sPathRegex . '@ui', $value)) {
+                        if (\preg_match('%^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/' . $sPathRegex . '%ui', $value)) {
                             $bOK = true;
                             break;
                         }
@@ -1689,7 +1690,7 @@ class Jevix
 
                         case '#size':
                             if (
-                                ! \preg_match('/^([1-9]\d*)(%)?$/', $value, $matches)
+                                ! \preg_match('%^([1-9]\d*)(\%)?$%', $value, $matches)
                                 || (
                                     ! empty($matches[2])
                                     && (int) $matches[1] > 100
@@ -1706,45 +1707,53 @@ class Jevix
                             break;
 
                         case '#link':
-                            // Первый символ должен быть a-z, 0-9, #, / или точка
-                            if (! \preg_match('/^[a-z0-9\/\#\.]/ui', $value)) {
+                            // Первый символ должен быть буквой, цифрой, #, / или точкой
+                            if (! \preg_match('%^[\p{L}\p{N}/#.]%u', $value)) {
                                 $bOK = false;
 
                                 break;
 
-                            // Пропускаем относительные url и ipv6
-                            } elseif (\preg_match('/^(\.\.\/|\/|\.|\#)/ui', $value)) {
+                            // Пропускаем относительные url, url с сопоставимым протоколом и якоря
+                            // (что-то я не уверен в такой регулярке)
+                            } elseif (\preg_match('%^(?:\.?\.?/|#)%', $value)) {
                                 break;
                             }
 
                             // Если нет указания протокола:
                             $sProtocol = '(' . $this->_getAllowedProtocols('#link') . ')' . ($this->_getSkipProtocol('#link') ? '?' : '');
 
-                            if (! \preg_match('/^' . $sProtocol . '/ui', $value)) {
+                            if (! \preg_match('%^' . $sProtocol . '%ui', $value)) {
                                 // Нет слэшей и адрес похож на почту
                                 if (
-                                    \preg_match('/.+@.+\..+/i', $value)
-                                    && ! \preg_match('/\//', $value)
+                                    false === \strpos($value, '/')
+                                    && \preg_match('%@[^.]+\.[^.]%', $value)
                                 ) {
                                     $value = 'mailto:' . $value;
 
                                 // Или адрес похож на домен
-                                } elseif (\preg_match('/\.[a-z]{2,}+/ui', $value)) {
-                                    $value = 'http://' . $value;
+                                } elseif (\preg_match('%^[\p{L}\p{N}][\p{L}\p{N}-]*[\p{L}\p{N}]\.[\p{L}\p{N}]%u', $value)) {
+                                    $value = '//' . $value;
                                 }
                             }
 
                             break;
 
                         case '#image':
+                            // Пропускаем относительные url, url с сопоставимым протоколом
+                            // (что-то я не уверен в такой регулярке)
+                            if (\preg_match('%^\.?\.?/%', $value)) {
+                                break;
+                            }
+
+
                             // Пропускаем относительные url и ipv6
-                            if (\preg_match('/^(\.\.\/|\/|\.)/ui', $value)) {
+                            if (\preg_match('%^(\.\.\/|\/|\.)%ui', $value)) {
                                 // HTTP в начале если нет
                                 $sProtocol = '(' . $this->_getAllowedProtocols('#image') . ')' . ($this->_getSkipProtocol('#image') ? '?' : '');
 
                                 if (
-                                    ! \preg_match('@^' . $sProtocol . '\/\/@ui', $value)
-                                    && ! \preg_match('/^\//ui', $value)
+                                    ! \preg_match('%^' . $sProtocol . '\/\/%ui', $value)
+                                    && ! \preg_match('%^\/%ui', $value)
                                 ) {
                                     $value = 'http://' . $value;
                                 }
@@ -1752,9 +1761,9 @@ class Jevix
                                 break;
 
                             // Если нет указания протокола:
-                            } elseif (! \preg_match('/^(http|https):\/\//ui', $value)) {
+                            } elseif (! \preg_match('%^(http|https):\/\/%ui', $value)) {
                                 // Но адрес похож на домен с картинкой, то добавляем http
-                                if (\preg_match('/\.[a-z]{2,}+.*\./ui', $value)) {
+                                if (\preg_match('%\.[a-z]{2,}+.*\.%ui', $value)) {
                                     $value = 'http://' . $value;
                                 }
                             }
@@ -1830,14 +1839,18 @@ class Jevix
                                 }
 
                             } elseif (\is_array($mValue)) {
-                                if (isset($mValue['#domain']) && \is_array($mValue['#domain'])) {
-                                    if (! \preg_match('/javascript:/ui', $sValueParam)) {
+                                if (
+                                    isset($mValue['#domain'])
+                                    && \is_array($mValue['#domain'])
+                                ) {
+                                    if (! \preg_match('%javascript:%ui', $sValueParam)) {
                                         $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
+                                        $sProtocol = \preg_quote($sProtocol, '%');
 
                                         foreach ($mValue['#domain'] as $sDomain) {
-                                            $sDomain = preg_quote($sDomain);
+                                            $sDomain = \preg_quote($sDomain, '%');
 
-                                            if (\preg_match('@^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/@ui', $sValueParam)) {
+                                            if (\preg_match('%^' . $sProtocol . '//([\w\d]+\.)?' . $sDomain . '/%ui', $sValueParam)) {
                                                 $bOK = true;
                                                 break;
                                             }
@@ -2500,7 +2513,7 @@ class Jevix
         }
 
         if (! empty($url)) {
-            if (\preg_match('/[\.\,\-\?\!\:\;]+$/', $url, $matches)) {
+            if (\preg_match('%[.,?!:;-]+$%', $url, $matches)) {
                 $count = - \strlen($matches[0]);
                 $url   = \substr($url, 0, $count);
                 $href  = \substr($href, 0, $count);
