@@ -86,7 +86,7 @@ class Jevix
     protected $autoReplace;
     protected $allowedProtocols        = ['#image' => 'http:|https:', '#link' => 'http:|https:|ftp:|mailto:'];
     protected $allowedProtocolsDefault = ['http', 'https', 'ftp'];
-    protected $skipProtocol            = [];
+    protected $skipProtocol            = ['#image' => true, '#link' => true];
     protected $autoPregReplace;
     protected $isXHTMLMode             = true; // <br/>, <img/>
     protected $eFlags                  = \ENT_XHTML | \ENT_QUOTES;
@@ -1713,59 +1713,59 @@ class Jevix
 
                                 break;
 
-                            // Пропускаем относительные url, url с сопоставимым протоколом и якоря
+                            // Пропускаем относительные url и якоря
                             // (что-то я не уверен в такой регулярке)
-                            } elseif (\preg_match('%^(?:\.?\.?/|#)%', $value)) {
+                            } elseif (\preg_match('%^(?:\.\.?/|/(?!/)|#)%', $value)) {
                                 break;
                             }
 
-                            // Если нет указания протокола:
-                            $sProtocol = '(' . $this->_getAllowedProtocols('#link') . ')' . ($this->_getSkipProtocol('#link') ? '?' : '');
+                            // Если null, то проверка протокола/схемы провалена
+                            // Пустая строка - нет схемы в url
+                            // Или //, mailto:, https:// и т.д.
+                            $schema = $this->schemaVerify($value, '#link');
 
-                            if (! \preg_match('%^' . $sProtocol . '%ui', $value)) {
-                                // Нет слэшей и адрес похож на почту
-                                if (
-                                    false === \strpos($value, '/')
-                                    && \preg_match('%@[^.]+\.[^.]%', $value)
-                                ) {
-                                    $value = 'mailto:' . $value;
+                            if (null === $schema) {
+                                $bOK = false;
 
-                                // Или адрес похож на домен
-                                } elseif (\preg_match('%^[\p{L}\p{N}][\p{L}\p{N}-]*[\p{L}\p{N}]\.[\p{L}\p{N}]%u', $value)) {
-                                    $value = '//' . $value;
-                                }
+                            // Нет слэшей и адрес похож на почту (провекра на разрешенные протоколы?)
+                            } elseif (
+                                '' === $schema
+                                && false === \strpos($value, '/')
+                                && \preg_match('%@[^.]+\.[^.]%', $value)
+                            ) {
+                                $value = 'mailto:' . $value;
+
+                            // Или адрес похож на домен (а ще регулярка у меня похожа на имя файла)
+                            } elseif (
+                                '' === $schema
+                                && \preg_match('%^[\p{L}\p{N}][\p{L}\p{N}-]*[\p{L}\p{N}]\.[\p{L}\p{N}]%u', $value)
+                            ) {
+                                $value = '//' . $value;
                             }
 
                             break;
 
                         case '#image':
-                            // Пропускаем относительные url, url с сопоставимым протоколом
+                            // Пропускаем относительные url
                             // (что-то я не уверен в такой регулярке)
-                            if (\preg_match('%^\.?\.?/%', $value)) {
+                            if (\preg_match('%^(?:\.\.?/|/(?!/))%', $value)) {
                                 break;
                             }
 
+                            // Если null, то проверка протокола/схемы провалена
+                            // Пустая строка - нет схемы в url
+                            // Или //, mailto:, https:// и т.д.
+                            $schema = $this->schemaVerify($value, '#link');
 
-                            // Пропускаем относительные url и ipv6
-                            if (\preg_match('%^(\.\.\/|\/|\.)%ui', $value)) {
-                                // HTTP в начале если нет
-                                $sProtocol = '(' . $this->_getAllowedProtocols('#image') . ')' . ($this->_getSkipProtocol('#image') ? '?' : '');
+                            if (null === $schema) {
+                                $bOK = false;
 
-                                if (
-                                    ! \preg_match('%^' . $sProtocol . '\/\/%ui', $value)
-                                    && ! \preg_match('%^\/%ui', $value)
-                                ) {
-                                    $value = 'http://' . $value;
-                                }
-
-                                break;
-
-                            // Если нет указания протокола:
-                            } elseif (! \preg_match('%^(http|https):\/\/%ui', $value)) {
-                                // Но адрес похож на домен с картинкой, то добавляем http
-                                if (\preg_match('%\.[a-z]{2,}+.*\.%ui', $value)) {
-                                    $value = 'http://' . $value;
-                                }
+                            // Или адрес похож на домен (а ще регулярка у меня похожа на имя файла)
+                            } elseif (
+                                '' === $schema
+                                && \preg_match('%^[\p{L}\p{N}][\p{L}\p{N}-]*[\p{L}\p{N}]\.[\p{L}\p{N}]%u', $value)
+                            ) {
+                                $value = '//' . $value;
                             }
 
                             break;
@@ -2559,5 +2559,34 @@ class Jevix
     protected function eDecode(string $str): string
     {
         return \htmlspecialchars_decode($str, $this->eFlags);
+    }
+
+    protected function schemaVerify(string $value, string $param): ?string
+    {
+        $pattern = '%^(' . $this->_getAllowedProtocols($param) . ')$%iu';
+
+        if (! \preg_match('%^(?:([^:/\\\\]+:)(?://)?|//)%', $value, $schema)) {
+            return '';
+
+        } else {
+            // в url есть схема и она разрешена
+            if (
+                isset($schema[1])
+                && \preg_match($pattern, $schema[1])
+            ) {
+                return $schema[0];
+
+            // в url нет схемы и разрешено ее отсутствие
+            } elseif (
+                ! isset($schema[1])
+                && $this->_getSkipProtocol($param)
+            ) {
+                return $schema[0];
+
+            // провал проверки
+            } else {
+                return null;
+            }
+        }
     }
 }
