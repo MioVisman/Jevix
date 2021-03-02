@@ -104,7 +104,7 @@ class Jevix
      */
     const TR_TAG_ALLOWED       = 1;  // Тег позволен
     const TR_PARAM_ALLOWED     = 2;  // Параметр тега позволен (a->title, a->src, i->alt)
-    const TR_PARAM_REQUIRED    = 3;  // Параметр тега влятся необходимым (a->href, img->src)
+    const TR_PARAM_REQUIRED    = 3;  // Параметр тега являтся необходимым (a->href, img->src)
     const TR_TAG_SHORT         = 4;  // Тег может быть коротким (img, br)
     const TR_TAG_CUT           = 5;  // Тег необходимо вырезать вместе с контентом (script, iframe)
     const TR_TAG_CHILD         = 6;  // Тег может содержать другие теги
@@ -116,8 +116,8 @@ class Jevix
     const TR_TAG_NO_TYPOGRAPHY = 12; // Отключение типографирования для тега
     const TR_TAG_IS_EMPTY      = 13; // Не короткий тег с пустым содержанием имеет право существовать
     const TR_TAG_NO_AUTO_BR    = 14; // Тег в котором не нужна авто-расстановка <br>
-    const TR_TAG_CALLBACK      = 15; // Тег обрабатывается callback-функцией - в обработку уходит только контент тега(короткие теги не обрабатываются)
-    const TR_TAG_BLOCK_TYPE    = 16; // Тег после которого не нужна автоподстановка доп. <br>
+    const TR_TAG_CALLBACK      = 15; // Тег обрабатывается callback-функцией - в обработку уходит только контент тега (короткие теги не обрабатываются)
+    const TR_TAG_BLOCK_TYPE    = 16; // Тег после которого не нужна автоподстановка <br>
     const TR_TAG_CALLBACK_FULL = 17; // Тег обрабатывается callback-функцией - в обработку уходит весь тег
     const TR_PARAM_COMBINATION = 18; // Проверка на возможные комбинации значений параметров тега
 
@@ -390,7 +390,7 @@ class Jevix
     }
 
     /**
-     * КОНФИГУРАЦИЯ: Теги внутри который не нужна авто-расстановка <br/>, например, <ul></ul> и <ol></ol>
+     * КОНФИГУРАЦИЯ: Теги внутри который не нужна авто-расстановка <br>, например, <ul></ul> и <ol></ol>
      * @param array|string $tags тег(и)
      * @throws Exception
      */
@@ -410,7 +410,7 @@ class Jevix
     }
 
     /**
-     * КОНФИГУРАЦИЯ: После тега не нужно добавлять дополнительный <br/>
+     * КОНФИГУРАЦИЯ: После тега не нужно добавлять дополнительный <br>
      * @param array|string $tags тег(и)
      * @throws Exception
      */
@@ -498,7 +498,7 @@ class Jevix
             $this->tagsRules[$tag][self::TR_TAG_CONTAINER] = true;
         }
 
-        // Если ключа со списком разрешенных тегов не существует - создаём ео
+        // Если ключа со списком разрешенных тегов не существует - создаём его
         if (! isset($this->tagsRules[$tag][self::TR_TAG_CHILD_TAGS])) {
             $this->tagsRules[$tag][self::TR_TAG_CHILD_TAGS] = [];
         }
@@ -506,7 +506,7 @@ class Jevix
         foreach ($childs as $child) {
             $this->tagsRules[$tag][self::TR_TAG_CHILD_TAGS][$child] = true;
 
-            //  Указанный тег должен сущеаствовать в списке тегов
+            //  Указанный тег должен существовать в списке тегов
             if (! isset($this->tagsRules[$child])) {
                 throw new Exception("Тег $child отсутствует в списке разрешённых тегов");
             }
@@ -564,7 +564,7 @@ class Jevix
     }
 
     /**
-     * КОНФИГУРАЦИЯ: Устанавливаем callback-функцию на обработку содержимого тега
+     * КОНФИГУРАЦИЯ: Устанавливаем callback-функцию на обработку тега (полностью)
      * @param string $tag тег
      * @param mixed $callback функция
      * @throws Exception
@@ -584,7 +584,7 @@ class Jevix
      * @param string $tag тег
      * @param string $param атрибут
      * @param array $aCombinations Список комбинаций значений. Пример:
-     *     array('myvalue'=>array('attr1'=>array('one','two'),'attr2'=>'other'))
+     *              array('myvalue'=>array('attr1'=>array('one','two'),'attr2'=>'other'))
      * @param bool $bRemove Удаляеть тег или нет, если в списке нет значения основного атрибута
      * @throws Exception
      */
@@ -726,7 +726,7 @@ class Jevix
     }
 
     /**
-     * Включение или выключение режима замены новых строк на <br/>
+     * Включение или выключение режима замены новых строк на <br>
      *
      * @param boolean $isAutoBrMode
      */
@@ -837,6 +837,7 @@ class Jevix
     protected function goToPosition(int $position): string
     {
         $this->curPos = $position;
+
         if ($this->curPos < $this->textLen) {
             $this->curCh      = $this->textBuf[$this->curPos];
             $this->curChOrd   = \mb_ord($this->curCh, 'UTF-8');
@@ -1233,6 +1234,7 @@ class Jevix
                         $depth--;
                     }
                 }
+
             // Открыт ноый preformatted тег
             } elseif (
                 $this->curCh == '>'
@@ -1290,7 +1292,7 @@ class Jevix
                     $this->restoreState();
                 }
 
-                // Если закрылось то, что открылось - заканчиваем и возвращаем true
+                // Если закрылось то, что открылось - заканчиваем и возвращаем true ????
                 if (
                     $isClosedTag
                     && $tag == $insideTag
@@ -1451,7 +1453,7 @@ class Jevix
     protected function tagParamValue(&$value, $quote): bool
     {
         if ($quote !== false) {
-            // Нормальный параметр с кавычкамию Получаем пока не кавычки и не конец
+            // Нормальный параметр с кавычками. Получаем пока не кавычки и не конец
             $escape = false;
 
             while (
@@ -1476,7 +1478,7 @@ class Jevix
             }
 
         } else {
-            // долбаный параметр без кавычек. получаем его пока не пробел и не > и не конец
+            // Долбаный параметр без кавычек. Получаем его пока не пробел, не > и не конец
             while (
                 $this->curChClass
                 && ! ($this->curChClass & self::SPACE)
@@ -1699,7 +1701,8 @@ class Jevix
                             break;
 
                         case '#text':
-                            //$value = \htmlspecialchars($value);
+                            // $value = \htmlspecialchars($value);
+                            // Экранировние значений атрибутов ниже по коду
                             break;
 
                         case '#link':
@@ -2009,7 +2012,7 @@ class Jevix
     }
 
     /**
-     * Пропуск переводов строк подсчет кол-ва
+     * Пропуск переводов строк, подсчет кол-ва
      *
      * @param int $count ссылка для возвращения числа переводов строк
      * @param int $limit максимальное число пропущенных переводов строк, при уставновке в 0 - не лимитируется
@@ -2034,9 +2037,9 @@ class Jevix
                 break;
             }
 
-            // Если символ новый строки ткой же как и первый увеличиваем счетчик
+            // Если символ новый строки такой же как и первый увеличиваем счетчик
             // новых строк. Это сработает при любых сочетаниях
-            // \r\n\r\n, \r\r, \n\n - две перевода
+            // \r\n\r\n, \r\r, \n\n - два перевода
             if ($nl == $firstNL) {
                 $count++;
             }
@@ -2402,7 +2405,7 @@ class Jevix
                     $text .= $brCount == 1 ? $br : $br . $br;
                 }
 
-                // Помечаем что новая строка и новое слово
+                // Помечаем, что новая строка и новое слово
                 $newLine = true;
                 $newWord = true;
                 // !!!Добавление слова
@@ -2418,7 +2421,7 @@ class Jevix
                 $text .= $this->makeTag('a', ['href' => $href], $url, false);
 
             } elseif ($this->curChClass & self::PRINATABLE) {
-                // Экранируем символы HTML которые нельзя сувать внутрь тега (но не те? которые не могут быть в параметрах)
+                // Экранируем символы HTML которые нельзя сувать внутрь тега (но не те, которые не могут быть в параметрах)
                 $text   .= $this->entities2[$this->curCh] ?? $this->curCh;
                 $this->getCh();
                 $newWord = false;
