@@ -1632,7 +1632,6 @@ class Jevix
                 ) {
                     $bOK       = false;
                     $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
-                    $sProtocol = \preg_quote($sProtocol, '%');
 
                     // Support path-dependent rules per domain
                     foreach ($paramAllowedValues['#domain'] as $sDomain => $sPathRegex) {
@@ -1845,7 +1844,6 @@ class Jevix
                                 ) {
                                     if (! \preg_match('%javascript:%ui', $sValueParam)) {
                                         $sProtocol = '(' . $this->_getAllowedProtocols('#domain') . ')' . ($this->_getSkipProtocol('#domain') ? '?' : '');
-                                        $sProtocol = \preg_quote($sProtocol, '%');
 
                                         foreach ($mValue['#domain'] as $sDomain) {
                                             $sDomain = \preg_quote($sDomain, '%');
