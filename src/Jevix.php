@@ -766,7 +766,7 @@ class Jevix
     public function parse(string $text, &$errors): string
     {
         $this->curPos       = -1;
-        $this->curCh        = null;
+        $this->curCh        = ''; // null;
         $this->curChOrd     = 0;
         $this->state        = self::STATE_TEXT;
         $this->states       = [];
