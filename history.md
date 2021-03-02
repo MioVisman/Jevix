@@ -4,7 +4,6 @@
 + Change logic for checking allowed protocols for image and link
 + Change logic for checking for image and link
 + Fix/change regexps
-+
 
 2.0.0
 -------
