@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Jevix — средство автоматического применения правил набора текстов,
  * наделённое способностью унифицировать разметку HTML/XML документов,
@@ -17,6 +16,8 @@
  * @link       https://github.com/MioVisman/Jevix
  * @license    https://opensource.org/licenses/MIT The MIT License (MIT)
  */
+
+declare(strict_types=1);
 
 namespace MioVisman\Jevix;
 
@@ -2357,7 +2358,7 @@ class Jevix
             } elseif (
                 $typoEnabled
                 && ($this->curChClass & self::HTML_QUOTE)
-                && $this->quote($spCount, $quote, $closed)
+                && $this->quote($spCount > 0, $quote, $closed)
             ) {
                 // Кавычки
                 $this->quotesOpened += $closed ? -1 : 1;
