@@ -52,12 +52,12 @@ class Jevix
     const STATE_INSIDE_CALLBACK_TAG     = 6;
 
     protected $tagsRules  = [];
-    protected $entities1  = ['"' => '&quot;', "'" => '&#39;', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
+#   protected $entities1  = ['"' => '&quot;', "'" => '&#39;', '&' => '&amp;', '<' => '&lt;', '>' => '&gt;'];
     protected $entities2  = ['<' => '&lt;', '>' => '&gt;', '"' => '&quot;'];
     protected $textQuotes = [['«', '»'], ['„', '“']];
 
     protected $dash                 = " — ";
-    protected $apostrof             = "’";
+#   protected $apostrof             = "’";
     protected $dotes                = "…";
     protected $nl                   = "\r\n";
     protected $defaultTagParamRules = [
@@ -79,22 +79,22 @@ class Jevix
     protected $curParentTag;
     protected $states;
     protected $quotesOpened            = 0;
-    protected $brAdded                 = 0;
+#   protected $brAdded                 = 0;
     protected $state;
     protected $tagsStack;
     protected $openedTag;
-    protected $autoReplace;              // Автозамена
+    protected $autoReplace;
     protected $allowedProtocols        = ['#image' => 'http:|https:', '#link' => 'http:|https:|ftp:|mailto:'];
     protected $allowedProtocolsDefault = ['http', 'https', 'ftp'];
     protected $skipProtocol            = [];
-    protected $autoPregReplace;          // Автозамена с поддержкой регулярных выражений
+    protected $autoPregReplace;
     protected $isXHTMLMode             = true; // <br/>, <img/>
     protected $eFlags                  = \ENT_XHTML | \ENT_QUOTES;
     protected $isAutoBrMode            = true; // \n = <br/>
     protected $isAutoLinkMode          = true;
     protected $br                      = "<br/>";
     protected $noTypoMode              = false;
-    protected $outBuffer               = '';
+#   protected $outBuffer               = '';
     protected $errors;
 
 
@@ -800,8 +800,8 @@ class Jevix
         $this->textLen   = \count($this->textBuf);
         $this->getCh();
         $content         = '';
-        $this->outBuffer = '';
-        $this->brAdded   = 0;
+#       $this->outBuffer = '';
+#       $this->brAdded   = 0;
         $this->tagsStack = [];
         $this->openedTag = null;
         $this->errors    = [];
