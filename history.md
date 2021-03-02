@@ -1,3 +1,11 @@
+2.1.0
+-------
++ declare(strict_types=1)
++ Change logic for checking allowed protocols for image and link
++ Change logic for checking for image and link
++ Fix/change regexps
++
+
 2.0.0
 -------
 + Require PHP 7.3.0+
