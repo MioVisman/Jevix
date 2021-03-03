@@ -1769,14 +1769,14 @@ class Jevix
                                 && false === \strpos($value, '/')
                                 && \preg_match('%@[^.]+\.[^.]%', $value)
                             ) {
-                                $value = 'mailto:' . $value;
+                                $value = "mailto:{$value}";
 
                             // Или адрес похож на домен (а ще регулярка у меня похожа на имя файла)
                             } elseif (
                                 '' === $schema
                                 && \preg_match('%^[\p{L}\p{N}][\p{L}\p{N}-]*[\p{L}\p{N}]\.[\p{L}\p{N}]%u', $value)
                             ) {
-                                $value = '//' . $value;
+                                $value = "//{$value}";
                             }
 
                             break;
@@ -1801,7 +1801,7 @@ class Jevix
                                 '' === $schema
                                 && \preg_match('%^[\p{L}\p{N}][\p{L}\p{N}-]*[\p{L}\p{N}]\.[\p{L}\p{N}]%u', $value)
                             ) {
-                                $value = '//' . $value;
+                                $value = "//{$value}";
                             }
 
                             break;
@@ -2382,7 +2382,7 @@ class Jevix
                     && $punctuation == '.'
                     && ($this->curChClass & self::LAT)
                 ) {
-                    $punctuation = ' ' . $punctuation;
+                    $punctuation = " {$punctuation}";
                 }
 
                 $text   .= $punctuation;
@@ -2418,7 +2418,7 @@ class Jevix
                 $quote = $this->makeQuote($closed, $closed ? $this->quotesOpened : $this->quotesOpened - 1);
 
                 if ($spCount) {
-                    $quote = ' ' . $quote;
+                    $quote = " {$quote}";
                 }
 
                 $text   .= $quote;
@@ -2507,7 +2507,7 @@ class Jevix
                 return false;
             }
 
-            $href = 'http://' . $url;
+            $href = "http://{$url}";
 
         } elseif ($this->matchStr('https://')) {
             while ($this->curChClass & $urlChMask) {
@@ -2521,7 +2521,7 @@ class Jevix
                 return false;
             }
 
-            $href = 'https://' . $url;
+            $href = "https://{$url}";
 
         } elseif ($this->matchStr('www.')) {
             while ($this->curChClass & $urlChMask) {
@@ -2535,8 +2535,8 @@ class Jevix
                 return false;
             }
 
-            $url  = 'www.' . $url;
-            $href = 'http://' . $url;
+            $url  = "www.{$url}";
+            $href = "http://{$url}";
 
         }
 
