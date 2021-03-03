@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace MioVisman\Jevix;
 
 use Exception;
+use InvalidArgumentException;
 
 class Jevix
 {
@@ -59,7 +60,7 @@ class Jevix
     protected $dash                 = " — ";
 #   protected $apostrof             = "’";
     protected $dotes                = "…";
-    protected $nl                   = "\r\n";
+    protected $nl                   = "\n";
     protected $defaultTagParamRules = [
         'href'   => '#link',
         'src'    => '#image',
@@ -743,6 +744,21 @@ class Jevix
     public function cfgSetAutoLinkMode(bool $isAutoLinkMode): void
     {
         $this->isAutoLinkMode = $isAutoLinkMode;
+    }
+
+    /**
+     * Устанавливает символ перевода строки: \r\n, \r, \n
+     *
+     * @param string $nl
+     * @throws InvalidArgumentException
+     */
+    public function cfgSetNL(string $nl): void
+    {
+        if (\in_array($nl, ["\r\n", "\r", "\n"], true)) {
+            $this->nl = $nl;
+        } else {
+            throw new InvalidArgumentException('Expected "\\r\\n", "\\r" or "\\n"');
+        }
     }
 
     /**
@@ -1897,7 +1913,7 @@ class Jevix
             $text .= $short && $this->isXHTMLMode ? '/>' : '>';
 
             if (isset($tagRules[self::TR_TAG_CONTAINER])) {
-                $text .= "\r\n";
+                $text .= $this->nl;
             }
 
             if (! $short) {
@@ -1905,11 +1921,11 @@ class Jevix
             }
 
             if ($parentTagIsContainer) {
-                $text .= "\r\n";
+                $text .= $this->nl;
             }
 
             if ($tag === 'br') {
-                $text .= "\r\n";
+                $text .= $this->nl;
             }
         }
 
