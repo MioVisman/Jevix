@@ -101,7 +101,6 @@ class Jevix
 
     /**
      * Константы для класификации тегов
-     *
      */
     const TR_TAG_ALLOWED       = 1;  // Тег позволен
     const TR_PARAM_ALLOWED     = 2;  // Параметр тега позволен (a->title, a->src, i->alt)
@@ -797,7 +796,6 @@ class Jevix
      */
     protected function strToArray(string $str): array
     {
-        $chars = null;
         \preg_match_all('%.%su', $str, $chars);
 
         return $chars[0];
@@ -920,7 +918,7 @@ class Jevix
     protected function restoreState(int $index = null): void
     {
         if (empty($this->states)) {
-            throw new RuntimeException('Конец стека');
+            throw new RuntimeException('End of stack');
         }
 
         if ($index === null) {
@@ -928,7 +926,7 @@ class Jevix
 
         } else {
             if (! isset($this->states[$index])) {
-                throw new RuntimeException('Неверный индекс стека');
+                throw new RuntimeException('Invalid stack index');
             }
 
             $state        = $this->states[$index];
@@ -1222,7 +1220,7 @@ class Jevix
             $isTagClose
             && $tag != $closeTag
         ) {
-            $this->errors[] = ['Неверный закрывающийся тег %1$s. Ожидалось закрытие %2$s', $closeTag, $tag];
+            $this->errors[] = ['Invalid closing %1$s tag. Expected closing %2$s tag', $closeTag, $tag];
             //$this->restoreState();
         }
 
@@ -1419,13 +1417,11 @@ class Jevix
      */
     protected function tagParams(&$params = []): bool
     {
-        $name  = null;
-        $value = null;
+        $name = $value = '';
 
         while ($this->tagParam($name, $value)) {
             $params[$name] = $value;
-            $name          = '';
-            $value         = '';
+            $name = $value = '';
         }
 
         return ! empty($params);
@@ -1598,26 +1594,23 @@ class Jevix
             && isset($this->tagsRules[$tag][self::TR_TAG_CUT])
         ) {
             return '';
-        }
 
         // Позволен ли тег
-        if (
+        } elseif (
             ! $tagRules
             || empty($tagRules[self::TR_TAG_ALLOWED])
         ) {
             return $parentTagIsContainer ? '' : $content;
-        }
 
         // Если тег находится внутри другого - может ли он там находится?
-        if (
+        } elseif (
             $parentTagIsContainer
             && ! isset($this->tagsRules[$parentTag][self::TR_TAG_CHILD_TAGS][$tag])
         ) {
             return '';
-        }
 
         // Тег может находится только внтури другого тега
-        if (
+        } elseif (
             isset($tagRules[self::TR_TAG_CHILD])
             && ! isset($tagRules[self::TR_TAG_PARENT][$parentTag])
         ) {
@@ -1625,10 +1618,12 @@ class Jevix
         }
 
         $resParams = [];
+        $oldParams = [];
 
         foreach ($params as $param => $value) {
-            $param = \mb_strtolower($param, 'UTF-8');
-            $value = \trim($this->eDecode($value));
+            $param             = \mb_strtolower($param, 'UTF-8');
+            $value             = \trim($this->eDecode($value));
+            $oldParams[$param] = $value;
 
             if ($value == '') {
                 continue;
@@ -1653,7 +1648,7 @@ class Jevix
             );
 
             if (\preg_match('%javascript:%i', $valueDecode)) {
-                $this->errors[] = ['Попытка вставить JavaScript в атрибут %1$s тега %2$s', $param, $tag];
+                $this->errors[] = ['Attempting to insert JavaScript into %1$s attribute of %2$s tag', $param, $tag];
 
                 continue;
             }
@@ -1690,7 +1685,7 @@ class Jevix
                 }
 
                 if (! $bOK) {
-                    $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+                    $this->errors[] = ['Invalid value for %2$s attribute [=%3$s] of %1$s tag', $tag, $param, $value];
 
                     continue;
                 }
@@ -1763,7 +1758,7 @@ class Jevix
                             if (null === $schema) {
                                 $bOK = false;
 
-                            // Нет слэшей и адрес похож на почту (провекра на разрешенные протоколы?)
+                            // Нет слэшей и адрес похож на почту (проверка на разрешенные протоколы?)
                             } elseif (
                                 '' === $schema
                                 && false === \strpos($value, '/')
@@ -1771,7 +1766,7 @@ class Jevix
                             ) {
                                 $value = "mailto:{$value}";
 
-                            // Или адрес похож на домен (а ще регулярка у меня похожа на имя файла)
+                            // Или адрес похож на домен (а еще регулярка у меня похожа на имя файла)
                             } elseif (
                                 '' === $schema
                                 && \preg_match('%^[\p{L}\p{N}][\p{L}\p{N}-]*[\p{L}\p{N}]\.[\p{L}\p{N}]%u', $value)
@@ -1796,7 +1791,7 @@ class Jevix
                             if (null === $schema) {
                                 $bOK = false;
 
-                            // Или адрес похож на домен (а ще регулярка у меня похожа на имя файла)
+                            // Или адрес похож на домен (а еще регулярка у меня похожа на имя файла)
                             } elseif (
                                 '' === $schema
                                 && \preg_match('%^[\p{L}\p{N}][\p{L}\p{N}-]*[\p{L}\p{N}]\.[\p{L}\p{N}]%u', $value)
@@ -1809,7 +1804,7 @@ class Jevix
                 }
 
                 if (! $bOK) {
-                    $this->errors[] = ['Недопустимое значение атрибута %2$s=%3$s тега %1$s', $tag, $param, $value];
+                    $this->errors[] = ['Invalid value for %2$s attribute [=%3$s] of %1$s tag', $tag, $param, $value];
 
                     continue;
                 }
@@ -1825,6 +1820,11 @@ class Jevix
         if ($requiredParams) {
             foreach ($requiredParams as $requiredParam) {
                 if (! isset($resParams[$requiredParam])) {
+                    // Проверка для того, чтобы вторую ошибку не выводить для одного и того же атрибута
+                    if (! isset($oldParams[$requiredParam])) {
+                        $this->errors[] = ['Missing required %2$s attribute in %1$s tag', $tag, $requiredParam];
+                    }
+
                     return $content;
                 }
             }
@@ -1901,12 +1901,16 @@ class Jevix
                             }
 
                             if (! $bOK) {
+                                $this->errors[] = ['Invalid value for %2$s attribute of %1$s tag (combination)', $tag, $sAttr];
+
                                 unset($resParams[$sAttr]);
                             }
                         }
                     }
 
                 } elseif (! empty($aRuleCombin[$param]['remove'])) {
+                    $this->errors[] = ['Missing required %2$s attribute in %1$s tag (combination)', $tag, $param];
+
                     return '';
                 }
             }
@@ -2248,7 +2252,7 @@ class Jevix
                 return false;
             }
 
-            $entityCh = \html_entity_decode("&#$entityCode;", ENT_COMPAT, 'UTF-8');
+            $entityCh = \html_entity_decode("&#$entityCode;", \ENT_COMPAT, 'UTF-8');
 
             return true;
 
@@ -2264,7 +2268,7 @@ class Jevix
                 return false;
             }
 
-            $entityCh = \html_entity_decode("&$entityName;", ENT_COMPAT, 'UTF-8');
+            $entityCh = \html_entity_decode("&$entityName;", \ENT_COMPAT, 'UTF-8');
 
             return true;
         }
