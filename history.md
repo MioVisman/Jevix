@@ -1,3 +1,12 @@
+2.2.0
+-------
++ Simplify conditions
++ Add cfgSetNL() method
++ Move the check for the existence of tag into separate method
++ Add syntactic sugar for configuration methods
++ HTML5 by default
++ Change the text of exceptions and errors (to English), add new errors
+
 2.1.0
 -------
 + declare(strict_types=1)
