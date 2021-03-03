@@ -89,11 +89,11 @@ class Jevix
     protected $allowedProtocolsDefault = ['http', 'https', 'ftp'];
     protected $skipProtocol            = ['#image' => true, '#link' => true];
     protected $autoPregReplace;
-    protected $isXHTMLMode             = true; // <br/>, <img/>
-    protected $eFlags                  = \ENT_XHTML | \ENT_QUOTES;
-    protected $isAutoBrMode            = true; // \n = <br/>
+    protected $isXHTMLMode             = false; // <br>, <img>
+    protected $br                      = '<br>';
+    protected $eFlags                  = \ENT_HTML5 | \ENT_QUOTES;
+    protected $isAutoBrMode            = true; // \n = <br>
     protected $isAutoLinkMode          = true;
-    protected $br                      = "<br/>";
     protected $noTypoMode              = false;
 #   protected $outBuffer               = '';
     protected $errors;
