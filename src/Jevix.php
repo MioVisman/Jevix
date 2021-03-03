@@ -316,9 +316,9 @@ class Jevix
      * @param int $flag флаг
      * @param mixed $value значение флага
      * @param boolean $createIfNotExists если тег ещё не определён - создть его
-     * @return void
+     * @return $this
      */
-    protected function _cfgSetTagsFlag($tags, int $flag, $value, bool $createIfNotExists = true): void
+    protected function _cfgSetTagsFlag($tags, int $flag, $value, bool $createIfNotExists = true): self
     {
         if (! \is_array($tags)) {
             $tags = [$tags];
@@ -335,88 +335,99 @@ class Jevix
 
             $this->tagsRules[$tag][$flag] = $value;
         }
+
+        return $this;
     }
 
     /**
      * КОНФИГУРАЦИЯ: Разрешение тегов
      * Все не разрешённые теги считаются запрещёнными
      * @param array|string $tags тег(и)
+     * @return $this
      */
-    public function cfgAllowTags($tags): void
+    public function cfgAllowTags($tags): self
     {
-        $this->_cfgSetTagsFlag($tags, self::TR_TAG_ALLOWED, true);
+        return $this->_cfgSetTagsFlag($tags, self::TR_TAG_ALLOWED, true);
     }
 
     /**
      * КОНФИГУРАЦИЯ: Коротие теги типа <img>
      * @param array|string $tags тег(и)
+     * @return $this
      */
-    public function cfgSetTagShort($tags): void
+    public function cfgSetTagShort($tags): self
     {
-        $this->_cfgSetTagsFlag($tags, self::TR_TAG_SHORT, true, false);
+        return $this->_cfgSetTagsFlag($tags, self::TR_TAG_SHORT, true, false);
     }
 
     /**
      * КОНФИГУРАЦИЯ: Преформатированные теги, в которых всё заменяется на HTML сущности типа <pre>
      * @param array|string $tags тег(и)
+     * @return $this
      */
-    public function cfgSetTagPreformatted($tags): void
+    public function cfgSetTagPreformatted($tags): self
     {
-        $this->_cfgSetTagsFlag($tags, self::TR_TAG_PREFORMATTED, true, false);
+        return $this->_cfgSetTagsFlag($tags, self::TR_TAG_PREFORMATTED, true, false);
     }
 
     /**
      * КОНФИГУРАЦИЯ: Теги в которых отключено типографирование типа <code>
      * @param array|string $tags тег(и)
+     * @return $this
      */
-    public function cfgSetTagNoTypography($tags): void
+    public function cfgSetTagNoTypography($tags): self
     {
-        $this->_cfgSetTagsFlag($tags, self::TR_TAG_NO_TYPOGRAPHY, true, false);
+        return $this->_cfgSetTagsFlag($tags, self::TR_TAG_NO_TYPOGRAPHY, true, false);
     }
 
     /**
      * КОНФИГУРАЦИЯ: Не короткие теги которые не нужно удалять с пустым содержанием, например, <param name="code"
      * value="die!"></param>
      * @param array|string $tags тег(и)
+     * @return $this
      */
-    public function cfgSetTagIsEmpty($tags): void
+    public function cfgSetTagIsEmpty($tags): self
     {
-        $this->_cfgSetTagsFlag($tags, self::TR_TAG_IS_EMPTY, true, false);
+        return $this->_cfgSetTagsFlag($tags, self::TR_TAG_IS_EMPTY, true, false);
     }
 
     /**
      * КОНФИГУРАЦИЯ: Теги внутри который не нужна авто-расстановка <br>, например, <ul></ul> и <ol></ol>
      * @param array|string $tags тег(и)
+     * @return $this
      */
-    public function cfgSetTagNoAutoBr($tags): void
+    public function cfgSetTagNoAutoBr($tags): self
     {
-        $this->_cfgSetTagsFlag($tags, self::TR_TAG_NO_AUTO_BR, true, false);
+        return $this->_cfgSetTagsFlag($tags, self::TR_TAG_NO_AUTO_BR, true, false);
     }
 
     /**
      * КОНФИГУРАЦИЯ: Тег необходимо вырезать вместе с контентом (script, iframe)
      * @param array|string $tags тег(и)
+     * @return $this
      */
-    public function cfgSetTagCutWithContent($tags): void
+    public function cfgSetTagCutWithContent($tags): self
     {
-        $this->_cfgSetTagsFlag($tags, self::TR_TAG_CUT, true);
+        return $this->_cfgSetTagsFlag($tags, self::TR_TAG_CUT, true);
     }
 
     /**
      * КОНФИГУРАЦИЯ: После тега не нужно добавлять дополнительный <br>
      * @param array|string $tags тег(и)
+     * @return $this
      */
-    public function cfgSetTagBlockType($tags): void
+    public function cfgSetTagBlockType($tags): self
     {
-        $this->_cfgSetTagsFlag($tags, self::TR_TAG_BLOCK_TYPE, true, false);
+        return $this->_cfgSetTagsFlag($tags, self::TR_TAG_BLOCK_TYPE, true, false);
     }
 
     /**
      * КОНФИГУРАЦИЯ: Добавление разрешённых параметров тега
      * @param string $tag тег
      * @param string|array $params разрешённые параметры
+     * @return $this
      */
-    public function cfgAllowTagParams(string $tag, $params): void
+    public function cfgAllowTagParams(string $tag, $params): self
     {
         $this->tagNameTest($tag);
 
@@ -436,14 +447,17 @@ class Jevix
                 $this->tagsRules[$tag][self::TR_PARAM_ALLOWED][$value] = true;
             }
         }
+
+        return $this;
     }
 
     /**
      * КОНФИГУРАЦИЯ: Добавление необходимых параметров тега
      * @param string $tag тег
      * @param string|array $params разрешённые параметры
+     * @return $this
      */
-    public function cfgSetTagParamsRequired(string $tag, $params): void
+    public function cfgSetTagParamsRequired(string $tag, $params): self
     {
         $this->tagNameTest($tag);
 
@@ -459,6 +473,8 @@ class Jevix
         foreach ($params as $param) {
             $this->tagsRules[$tag][self::TR_PARAM_REQUIRED][$param] = true;
         }
+
+        return $this;
     }
 
     /**
@@ -467,8 +483,9 @@ class Jevix
      * @param string|array $childs разрешённые теги
      * @param bool $isContainerOnly тег является только контейнером других тегов и не может содержать текст
      * @param bool $isChildOnly вложенные теги не могут присутствовать нигде кроме указанного тега
+     * @return $this
      */
-    public function cfgSetTagChilds(string $tag, $childs, bool $isContainerOnly = false, bool $isChildOnly = false): void
+    public function cfgSetTagChilds(string $tag, $childs, bool $isContainerOnly = false, bool $isChildOnly = false): self
     {
         $this->tagNameTest($tag);
 
@@ -503,6 +520,8 @@ class Jevix
                 $this->tagsRules[$child][self::TR_TAG_CHILD] = true;
             }
         }
+
+        return $this;
     }
 
     /**
@@ -511,8 +530,9 @@ class Jevix
      * @param string $param атрибут
      * @param string $value значение
      * @param bool $isRewrite заменять указанное значение дефолтным
+     * @return $this
      */
-    public function cfgSetTagParamDefault(string $tag, string $param, string $value, bool $isRewrite = false): void
+    public function cfgSetTagParamDefault(string $tag, string $param, string $value, bool $isRewrite = false): self
     {
         $this->tagNameTest($tag);
 
@@ -524,28 +544,36 @@ class Jevix
             'value'   => $value,
             'rewrite' => $isRewrite,
         ];
+
+        return $this;
     }
 
     /**
      * КОНФИГУРАЦИЯ: Устанавливаем callback-функцию на обработку содержимого тега
      * @param string $tag тег
      * @param mixed $callback функция
+     * @return $this
      */
-    public function cfgSetTagCallback(string $tag, $callback = null): void
+    public function cfgSetTagCallback(string $tag, $callback = null): self
     {
         $this->tagNameTest($tag);
         $this->tagsRules[$tag][self::TR_TAG_CALLBACK] = $callback;
+
+        return $this;
     }
 
     /**
      * КОНФИГУРАЦИЯ: Устанавливаем callback-функцию на обработку тега (полностью)
      * @param string $tag тег
      * @param mixed $callback функция
+     * @return $this
      */
-    public function cfgSetTagCallbackFull(string $tag, $callback = null): void
+    public function cfgSetTagCallbackFull(string $tag, $callback = null): self
     {
         $this->tagNameTest($tag);
         $this->tagsRules[$tag][self::TR_TAG_CALLBACK_FULL] = $callback;
+
+        return $this;
     }
 
     /**
@@ -556,8 +584,9 @@ class Jevix
      * @param array $aCombinations Список комбинаций значений. Пример:
      *              array('myvalue'=>array('attr1'=>array('one','two'),'attr2'=>'other'))
      * @param bool $bRemove Удаляеть тег или нет, если в списке нет значения основного атрибута
+     * @return $this
      */
-    public function cfgSetTagParamCombination(string $tag, string $param, array $aCombinations, bool $bRemove = false)
+    public function cfgSetTagParamCombination(string $tag, string $param, array $aCombinations, bool $bRemove = false): self
     {
         $this->tagNameTest($tag);
 
@@ -569,6 +598,8 @@ class Jevix
             'combination' => $this->arrayToLowerRec($aCombinations),
             'remove'      => $bRemove,
         ];
+
+        return $this;
     }
 
     protected function arrayToLowerRec(array $array): array
@@ -598,10 +629,13 @@ class Jevix
      *
      * @param array $from с
      * @param array $to на
+     * @return $this
      */
-    public function cfgSetAutoReplace(array $from, array $to): void
+    public function cfgSetAutoReplace(array $from, array $to): self
     {
         $this->autoReplace = ['from' => $from, 'to' => $to];
+
+        return $this;
     }
 
     /**
@@ -609,10 +643,13 @@ class Jevix
      *
      * @param array $from с
      * @param array $to на
+     * @return $this
      */
-    public function cfgSetAutoPregReplace(array $from, array $to): void
+    public function cfgSetAutoPregReplace(array $from, array $to): self
     {
         $this->autoPregReplace = ['from' => $from, 'to' => $to];
+
+        return $this;
     }
 
     /**
@@ -620,10 +657,11 @@ class Jevix
      *
      * @param array $aProtocols Список протоколов
      * @param bool $bClearDefault Удалить дефолтные протоколы
+     * @return $this
      */
-    public function cfgSetLinkProtocolAllow($aProtocols, bool $bClearDefault = false): void
+    public function cfgSetLinkProtocolAllow($aProtocols, bool $bClearDefault = false): self
     {
-        $this->cfgSetAllowedProtocols($aProtocols, $bClearDefault, '#link');
+        return $this->cfgSetAllowedProtocols($aProtocols, $bClearDefault, '#link');
     }
 
     /**
@@ -632,8 +670,9 @@ class Jevix
      * @param array $aProtocols Список протоколов
      * @param bool $bClearDefault Удалить дефолтные протоколы
      * @param string|array $aParams Для каких параметров задавать
+     * @return $this
      */
-    public function cfgSetAllowedProtocols($aProtocols, $bClearDefault = false, $aParams = []): void
+    public function cfgSetAllowedProtocols($aProtocols, $bClearDefault = false, $aParams = []): self
     {
         if (! \is_array($aProtocols)) {
             $aProtocols = [(string) $aProtocols];
@@ -678,50 +717,65 @@ class Jevix
                 $this->skipProtocol[$sParam] = false;
             }
         }
+
+        return $this;
     }
 
     /**
      * Включение или выключение режима XTML
      *
      * @param boolean $isXHTMLMode
+     * @return $this
      */
-    public function cfgSetXHTMLMode(bool $isXHTMLMode): void
+    public function cfgSetXHTMLMode(bool $isXHTMLMode): self
     {
         $this->br          = $isXHTMLMode ? '<br/>' : '<br>';
         $this->isXHTMLMode = $isXHTMLMode;
         $this->eFlags      = ($isXHTMLMode ? \ENT_XHTML : \ENT_HTML5) | \ENT_QUOTES;
+
+        return $this;
     }
 
     /**
      * Включение или выключение режима замены новых строк на <br>
      *
      * @param boolean $isAutoBrMode
+     * @return $this
      */
-    public function cfgSetAutoBrMode(bool $isAutoBrMode): void
+    public function cfgSetAutoBrMode(bool $isAutoBrMode): self
     {
         $this->isAutoBrMode = $isAutoBrMode;
+
+        return $this;
     }
 
     /**
      * Включение или выключение режима автоматического определения ссылок
      *
      * @param boolean $isAutoLinkMode
+     * @return $this
      */
-    public function cfgSetAutoLinkMode(bool $isAutoLinkMode): void
+    public function cfgSetAutoLinkMode(bool $isAutoLinkMode): self
     {
         $this->isAutoLinkMode = $isAutoLinkMode;
+
+        return $this;
     }
 
     /**
      * Устанавливает символ перевода строки: \r\n, \r, \n
      *
      * @param string $nl
+     * @return $this
      * @throws InvalidArgumentException
      */
-    public function cfgSetNL(string $nl): void
+    public function cfgSetNL(string $nl): self
     {
         if (\in_array($nl, ["\r\n", "\r", "\n"], true)) {
             $this->nl = $nl;
+
+            return $this;
+
         } else {
             throw new InvalidArgumentException('Expected "\\r\\n", "\\r" or "\\n"');
         }
