@@ -12,7 +12,7 @@
  * @author     https://github.com/altocms/Jevix
  * @author     Agel_Nash <agel-nash@mail.ru>
  * @author     Visman <mio.visman@yandex.ru>
- * @version    2.0.0
+ * @version    2.1.0
  * @link       https://github.com/MioVisman/Jevix
  * @license    https://opensource.org/licenses/MIT The MIT License (MIT)
  */
@@ -749,7 +749,7 @@ class Jevix
      * @param string $str
      * @return array
      */
-    protected function &strToArray(string $str): array
+    protected function strToArray(string $str): array
     {
         $chars = null;
         \preg_match_all('%.%su', $str, $chars);
@@ -2411,6 +2411,7 @@ class Jevix
                     )
                 ) {
                     // пропускаем <br/>
+
                 } else {
                     $br    = $this->br . $this->nl;
                     $text .= $brCount == 1 ? $br : $br . $br;
