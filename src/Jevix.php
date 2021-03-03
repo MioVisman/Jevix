@@ -317,7 +317,6 @@ class Jevix
      * @param mixed $value значение флага
      * @param boolean $createIfNotExists если тег ещё не определён - создть его
      * @return void
-     * @throws InvalidArgumentException
      */
     protected function _cfgSetTagsFlag($tags, int $flag, $value, bool $createIfNotExists = true): void
     {
@@ -330,7 +329,7 @@ class Jevix
                 if ($createIfNotExists) {
                     $this->tagsRules[$tag] = [];
                 } else {
-                    throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
+                    $this->tagNameTest($tag);
                 }
             }
 
@@ -416,13 +415,10 @@ class Jevix
      * КОНФИГУРАЦИЯ: Добавление разрешённых параметров тега
      * @param string $tag тег
      * @param string|array $params разрешённые параметры
-     * @throws InvalidArgumentException
      */
     public function cfgAllowTagParams(string $tag, $params): void
     {
-        if (! isset($this->tagsRules[$tag])) {
-            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
-        }
+        $this->tagNameTest($tag);
 
         if (! \is_array($params)) {
             $params = [$params];
@@ -446,13 +442,10 @@ class Jevix
      * КОНФИГУРАЦИЯ: Добавление необходимых параметров тега
      * @param string $tag тег
      * @param string|array $params разрешённые параметры
-     * @throws InvalidArgumentException
      */
     public function cfgSetTagParamsRequired(string $tag, $params): void
     {
-        if (! isset($this->tagsRules[$tag])) {
-            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
-        }
+        $this->tagNameTest($tag);
 
         if (! \is_array($params)) {
             $params = [$params];
@@ -474,13 +467,10 @@ class Jevix
      * @param string|array $childs разрешённые теги
      * @param bool $isContainerOnly тег является только контейнером других тегов и не может содержать текст
      * @param bool $isChildOnly вложенные теги не могут присутствовать нигде кроме указанного тега
-     * @throws InvalidArgumentException
      */
     public function cfgSetTagChilds(string $tag, $childs, bool $isContainerOnly = false, bool $isChildOnly = false): void
     {
-        if (! isset($this->tagsRules[$tag])) {
-            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
-        }
+        $this->tagNameTest($tag);
 
         if (! \is_array($childs)) {
             $childs = [$childs];
@@ -500,9 +490,7 @@ class Jevix
             $this->tagsRules[$tag][self::TR_TAG_CHILD_TAGS][$child] = true;
 
             //  Указанный тег должен существовать в списке тегов
-            if (! isset($this->tagsRules[$child])) {
-                throw new InvalidArgumentException("Тег $child отсутствует в списке разрешённых тегов");
-            }
+            $this->tagNameTest($child);
 
             if (! isset($this->tagsRules[$child][self::TR_TAG_PARENT])) {
                 $this->tagsRules[$child][self::TR_TAG_PARENT] = [];
@@ -523,13 +511,10 @@ class Jevix
      * @param string $param атрибут
      * @param string $value значение
      * @param bool $isRewrite заменять указанное значение дефолтным
-     * @throws InvalidArgumentException
      */
     public function cfgSetTagParamDefault(string $tag, string $param, string $value, bool $isRewrite = false): void
     {
-        if (! isset($this->tagsRules[$tag])) {
-            throw new InvalidArgumentException("Tag $tag is missing in allowed tags list");
-        }
+        $this->tagNameTest($tag);
 
         if (! isset($this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD])) {
             $this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD] = [];
@@ -545,14 +530,10 @@ class Jevix
      * КОНФИГУРАЦИЯ: Устанавливаем callback-функцию на обработку содержимого тега
      * @param string $tag тег
      * @param mixed $callback функция
-     * @throws InvalidArgumentException
      */
     public function cfgSetTagCallback(string $tag, $callback = null): void
     {
-        if (! isset($this->tagsRules[$tag])) {
-            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
-        }
-
+        $this->tagNameTest($tag);
         $this->tagsRules[$tag][self::TR_TAG_CALLBACK] = $callback;
     }
 
@@ -560,14 +541,10 @@ class Jevix
      * КОНФИГУРАЦИЯ: Устанавливаем callback-функцию на обработку тега (полностью)
      * @param string $tag тег
      * @param mixed $callback функция
-     * @throws InvalidArgumentException
      */
     public function cfgSetTagCallbackFull(string $tag, $callback = null): void
     {
-        if (! isset($this->tagsRules[$tag])) {
-            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
-        }
-
+        $this->tagNameTest($tag);
         $this->tagsRules[$tag][self::TR_TAG_CALLBACK_FULL] = $callback;
     }
 
@@ -579,13 +556,10 @@ class Jevix
      * @param array $aCombinations Список комбинаций значений. Пример:
      *              array('myvalue'=>array('attr1'=>array('one','two'),'attr2'=>'other'))
      * @param bool $bRemove Удаляеть тег или нет, если в списке нет значения основного атрибута
-     * @throws InvalidArgumentException
      */
     public function cfgSetTagParamCombination(string $tag, string $param, array $aCombinations, bool $bRemove = false)
     {
-        if (! isset($this->tagsRules[$tag])) {
-            throw new InvalidArgumentException("Tag $tag is missing in allowed tags list");
-        }
+        $this->tagNameTest($tag);
 
         if (! isset($this->tagsRules[$tag][self::TR_PARAM_COMBINATION])) {
             $this->tagsRules[$tag][self::TR_PARAM_COMBINATION] = [];
@@ -750,6 +724,16 @@ class Jevix
             $this->nl = $nl;
         } else {
             throw new InvalidArgumentException('Expected "\\r\\n", "\\r" or "\\n"');
+        }
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    protected function tagNameTest(string $tag): void
+    {
+        if (! isset($this->tagsRules[$tag])) {
+            throw new InvalidArgumentException("Tag $tag is missing in allowed tags list");
         }
     }
 
