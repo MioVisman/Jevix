@@ -2238,6 +2238,7 @@ class Jevix
 
         if ($this->matchCh('#')) {
             $entityCode = 0;
+
             if (
                 ! $this->number($entityCode)
                 || ! $this->matchCh(';')
@@ -2253,6 +2254,7 @@ class Jevix
 
         } else {
             $entityName = '';
+
             if (
                 ! $this->name($entityName)
                 || ! $this->matchCh(';')
@@ -2490,9 +2492,7 @@ class Jevix
     protected function url(&$url, &$href): bool
     {
         $this->saveState();
-        $url = '';
-        //$name = $this->name();
-        //switch($name)
+        $url       = '';
         $urlChMask = self::URL | self::ALPHA | self::PUNCTUATUON;
 
         if ($this->matchStr('http://')) {
@@ -2501,7 +2501,7 @@ class Jevix
                 $this->getCh();
             }
 
-            if (! \mb_strlen($url, 'UTF-8')) {
+            if (empty($url)) {
                 $this->restoreState();
 
                 return false;
@@ -2515,7 +2515,7 @@ class Jevix
                 $this->getCh();
             }
 
-            if (! \mb_strlen($url, 'UTF-8')) {
+            if (empty($url)) {
                 $this->restoreState();
 
                 return false;
@@ -2529,7 +2529,7 @@ class Jevix
                 $this->getCh();
             }
 
-            if (! \mb_strlen($url, 'UTF-8')) {
+            if (empty($url)) {
                 $this->restoreState();
 
                 return false;
