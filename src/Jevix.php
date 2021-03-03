@@ -12,7 +12,7 @@
  * @author     https://github.com/altocms/Jevix
  * @author     Agel_Nash <agel-nash@mail.ru>
  * @author     Visman <mio.visman@yandex.ru>
- * @version    2.1.0
+ * @version    2.2.0
  * @link       https://github.com/MioVisman/Jevix
  * @license    https://opensource.org/licenses/MIT The MIT License (MIT)
  */
