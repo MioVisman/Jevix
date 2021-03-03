@@ -929,7 +929,7 @@ class Jevix
      */
     protected function matchChClass(int $chClass, bool $skipSpaces = false)
     {
-        if (($this->curChClass & $chClass) == $chClass) {
+        if ($this->curChClass & $chClass) {
             $ch = $this->curCh;
             $this->getCh();
 
@@ -1071,7 +1071,7 @@ class Jevix
     }
 
     /**
-     *  Получает име (тега, параметра) по принципу 1 сиивол далее цифра или символ
+     *  Получает имя (тега, параметра) по принципу 1 сиивол далее цифра или символ
      *
      * @param string $name
      * @param bool $minus
@@ -1079,7 +1079,7 @@ class Jevix
      */
     protected function name(&$name = '', bool $minus = false): bool
     {
-        if (($this->curChClass & self::LAT) == self::LAT) {
+        if ($this->curChClass & self::LAT) {
             $name .= $this->curCh;
             $this->getCh();
 
@@ -1088,7 +1088,7 @@ class Jevix
         }
 
         while (
-            ($this->curChClass & self::NAME) == self::NAME
+            ($this->curChClass & self::NAME)
             || (
                 $minus
                 && $this->curCh == '-'
@@ -1410,7 +1410,7 @@ class Jevix
             // Стремная штука - параметр без значения <input type="checkbox" checked>, <td nowrap class=b>
             if (
                 $this->curCh == '>'
-                || ($this->curChClass & self::LAT) == self::LAT
+                || ($this->curChClass & self::LAT)
             ) {
                 $value = $name;
 
@@ -2175,14 +2175,14 @@ class Jevix
      */
     protected function number(&$num): bool
     {
-        if (! (($this->curChClass & self::NUMERIC) == self::NUMERIC)) {
+        if (! ($this->curChClass & self::NUMERIC)) {
             return false;
         }
 
         $num = $this->curCh;
         $this->getCh();
 
-        while (($this->curChClass & self::NUMERIC) == self::NUMERIC) {
+        while ($this->curChClass & self::NUMERIC) {
             $num .= $this->curCh;
             $this->getCh();
         }
