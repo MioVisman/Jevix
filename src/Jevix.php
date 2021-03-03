@@ -2540,6 +2540,7 @@ class Jevix
         $pattern = '%^(' . $this->_getAllowedProtocols($param) . ')$%iu';
 
         if (! \preg_match('%^(?:([^:/\\\\]+:)(?://)?|//)%', $value, $schema)) {
+            // схема не найдена
             return '';
 
         } else {
@@ -2550,7 +2551,7 @@ class Jevix
             ) {
                 return $schema[0];
 
-            // в url нет схемы и разрешено ее отсутствие
+            // в url пустая схема и она разрешена
             } elseif (
                 ! isset($schema[1])
                 && $this->_getSkipProtocol($param)
