@@ -21,8 +21,8 @@ declare(strict_types=1);
 
 namespace MioVisman\Jevix;
 
-use Exception;
 use InvalidArgumentException;
+use RuntimeException;
 
 class Jevix
 {
@@ -317,7 +317,7 @@ class Jevix
      * @param mixed $value значение флага
      * @param boolean $createIfNotExists если тег ещё не определён - создть его
      * @return void
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     protected function _cfgSetTagsFlag($tags, int $flag, $value, bool $createIfNotExists = true): void
     {
@@ -330,7 +330,7 @@ class Jevix
                 if ($createIfNotExists) {
                     $this->tagsRules[$tag] = [];
                 } else {
-                    throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
+                    throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
                 }
             }
 
@@ -342,7 +342,6 @@ class Jevix
      * КОНФИГУРАЦИЯ: Разрешение тегов
      * Все не разрешённые теги считаются запрещёнными
      * @param array|string $tags тег(и)
-     * @throws Exception
      */
     public function cfgAllowTags($tags): void
     {
@@ -352,7 +351,6 @@ class Jevix
     /**
      * КОНФИГУРАЦИЯ: Коротие теги типа <img>
      * @param array|string $tags тег(и)
-     * @throws Exception
      */
     public function cfgSetTagShort($tags): void
     {
@@ -362,7 +360,6 @@ class Jevix
     /**
      * КОНФИГУРАЦИЯ: Преформатированные теги, в которых всё заменяется на HTML сущности типа <pre>
      * @param array|string $tags тег(и)
-     * @throws Exception
      */
     public function cfgSetTagPreformatted($tags): void
     {
@@ -372,7 +369,6 @@ class Jevix
     /**
      * КОНФИГУРАЦИЯ: Теги в которых отключено типографирование типа <code>
      * @param array|string $tags тег(и)
-     * @throws Exception
      */
     public function cfgSetTagNoTypography($tags): void
     {
@@ -383,7 +379,6 @@ class Jevix
      * КОНФИГУРАЦИЯ: Не короткие теги которые не нужно удалять с пустым содержанием, например, <param name="code"
      * value="die!"></param>
      * @param array|string $tags тег(и)
-     * @throws Exception
      */
     public function cfgSetTagIsEmpty($tags): void
     {
@@ -393,7 +388,6 @@ class Jevix
     /**
      * КОНФИГУРАЦИЯ: Теги внутри который не нужна авто-расстановка <br>, например, <ul></ul> и <ol></ol>
      * @param array|string $tags тег(и)
-     * @throws Exception
      */
     public function cfgSetTagNoAutoBr($tags): void
     {
@@ -403,7 +397,6 @@ class Jevix
     /**
      * КОНФИГУРАЦИЯ: Тег необходимо вырезать вместе с контентом (script, iframe)
      * @param array|string $tags тег(и)
-     * @throws Exception
      */
     public function cfgSetTagCutWithContent($tags): void
     {
@@ -413,7 +406,6 @@ class Jevix
     /**
      * КОНФИГУРАЦИЯ: После тега не нужно добавлять дополнительный <br>
      * @param array|string $tags тег(и)
-     * @throws Exception
      */
     public function cfgSetTagBlockType($tags): void
     {
@@ -424,12 +416,12 @@ class Jevix
      * КОНФИГУРАЦИЯ: Добавление разрешённых параметров тега
      * @param string $tag тег
      * @param string|array $params разрешённые параметры
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function cfgAllowTagParams(string $tag, $params): void
     {
         if (! isset($this->tagsRules[$tag])) {
-            throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
+            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
         }
 
         if (! \is_array($params)) {
@@ -454,12 +446,12 @@ class Jevix
      * КОНФИГУРАЦИЯ: Добавление необходимых параметров тега
      * @param string $tag тег
      * @param string|array $params разрешённые параметры
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function cfgSetTagParamsRequired(string $tag, $params): void
     {
         if (! isset($this->tagsRules[$tag])) {
-            throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
+            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
         }
 
         if (! \is_array($params)) {
@@ -482,12 +474,12 @@ class Jevix
      * @param string|array $childs разрешённые теги
      * @param bool $isContainerOnly тег является только контейнером других тегов и не может содержать текст
      * @param bool $isChildOnly вложенные теги не могут присутствовать нигде кроме указанного тега
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function cfgSetTagChilds(string $tag, $childs, bool $isContainerOnly = false, bool $isChildOnly = false): void
     {
         if (! isset($this->tagsRules[$tag])) {
-            throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
+            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
         }
 
         if (! \is_array($childs)) {
@@ -509,7 +501,7 @@ class Jevix
 
             //  Указанный тег должен существовать в списке тегов
             if (! isset($this->tagsRules[$child])) {
-                throw new Exception("Тег $child отсутствует в списке разрешённых тегов");
+                throw new InvalidArgumentException("Тег $child отсутствует в списке разрешённых тегов");
             }
 
             if (! isset($this->tagsRules[$child][self::TR_TAG_PARENT])) {
@@ -531,12 +523,12 @@ class Jevix
      * @param string $param атрибут
      * @param string $value значение
      * @param bool $isRewrite заменять указанное значение дефолтным
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function cfgSetTagParamDefault(string $tag, string $param, string $value, bool $isRewrite = false): void
     {
         if (! isset($this->tagsRules[$tag])) {
-            throw new Exception("Tag $tag is missing in allowed tags list");
+            throw new InvalidArgumentException("Tag $tag is missing in allowed tags list");
         }
 
         if (! isset($this->tagsRules[$tag][self::TR_PARAM_AUTO_ADD])) {
@@ -553,12 +545,12 @@ class Jevix
      * КОНФИГУРАЦИЯ: Устанавливаем callback-функцию на обработку содержимого тега
      * @param string $tag тег
      * @param mixed $callback функция
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function cfgSetTagCallback(string $tag, $callback = null): void
     {
         if (! isset($this->tagsRules[$tag])) {
-            throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
+            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
         }
 
         $this->tagsRules[$tag][self::TR_TAG_CALLBACK] = $callback;
@@ -568,12 +560,12 @@ class Jevix
      * КОНФИГУРАЦИЯ: Устанавливаем callback-функцию на обработку тега (полностью)
      * @param string $tag тег
      * @param mixed $callback функция
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function cfgSetTagCallbackFull(string $tag, $callback = null): void
     {
         if (! isset($this->tagsRules[$tag])) {
-            throw new Exception("Тег $tag отсутствует в списке разрешённых тегов");
+            throw new InvalidArgumentException("Тег $tag отсутствует в списке разрешённых тегов");
         }
 
         $this->tagsRules[$tag][self::TR_TAG_CALLBACK_FULL] = $callback;
@@ -587,12 +579,12 @@ class Jevix
      * @param array $aCombinations Список комбинаций значений. Пример:
      *              array('myvalue'=>array('attr1'=>array('one','two'),'attr2'=>'other'))
      * @param bool $bRemove Удаляеть тег или нет, если в списке нет значения основного атрибута
-     * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function cfgSetTagParamCombination(string $tag, string $param, array $aCombinations, bool $bRemove = false)
     {
         if (! isset($this->tagsRules[$tag])) {
-            throw new Exception("Tag $tag is missing in allowed tags list");
+            throw new InvalidArgumentException("Tag $tag is missing in allowed tags list");
         }
 
         if (! isset($this->tagsRules[$tag][self::TR_PARAM_COMBINATION])) {
@@ -777,7 +769,6 @@ class Jevix
      * @param $text
      * @param $errors
      * @return string
-     * @throws Exception
      */
     public function parse(string $text, &$errors): string
     {
@@ -886,12 +877,12 @@ class Jevix
     /**
      * Восстановить
      * @param int $index
-     * @throws Exception
+     * @throws RuntimeException
      */
     protected function restoreState(int $index = null): void
     {
         if (empty($this->states)) {
-            throw new Exception('Конец стека');
+            throw new RuntimeException('Конец стека');
         }
 
         if ($index === null) {
@@ -899,7 +890,7 @@ class Jevix
 
         } else {
             if (! isset($this->states[$index])) {
-                throw new Exception('Неверный индекс стека');
+                throw new RuntimeException('Неверный индекс стека');
             }
 
             $state        = $this->states[$index];
@@ -966,7 +957,6 @@ class Jevix
      * @param string $str
      * @param bool $skipSpaces
      * @return bool
-     * @throws Exception
      */
     protected function matchStr(string $str, bool $skipSpaces = false): bool
     {
@@ -1013,7 +1003,6 @@ class Jevix
      *
      * @param string $str строка или символ ля поиска
      * @return bool
-     * @throws Exception
      */
     protected function skipUntilStr(string $str): bool
     {
@@ -1125,7 +1114,6 @@ class Jevix
      * @param string $content
      * @param bool $short
      * @return bool
-     * @throws Exception
      */
     protected function tag(&$tag, &$params, &$content, &$short): bool
     {
@@ -1212,7 +1200,6 @@ class Jevix
     /**
      * @param string $content
      * @param null|string $insideTag
-     * @throws Exception
      */
     protected function preformatted(&$content = '', $insideTag = null): void
     {
@@ -1292,7 +1279,6 @@ class Jevix
     /**
      * @param string $content
      * @param null|string $insideTag
-     * @throws Exception
      */
     protected function callback(&$content = '', $insideTag = null): void
     {
@@ -1331,7 +1317,6 @@ class Jevix
      * @param array $params
      * @param bool $short
      * @return bool
-     * @throws Exception
      */
     protected function tagOpen(&$name, &$params, &$short = false): bool
     {
@@ -1412,7 +1397,6 @@ class Jevix
      * @param string $name
      * @param string $value
      * @return bool
-     * @throws Exception
      */
     protected function tagParam(&$name, &$value): bool
     {
@@ -1514,7 +1498,6 @@ class Jevix
     /**
      * @param string $name
      * @return bool
-     * @throws Exception
      */
     protected function tagClose(&$name): bool
     {
@@ -1934,7 +1917,6 @@ class Jevix
 
     /**
      * @return bool
-     * @throws Exception
      */
     protected function comment(): bool
     {
@@ -1949,7 +1931,6 @@ class Jevix
      * @param string $content
      * @param null $parentTag
      * @return bool
-     * @throws Exception
      */
     protected function anyThing(&$content = '', $parentTag = null): bool
     {
@@ -2082,7 +2063,6 @@ class Jevix
     /**
      * @param string $dash
      * @return bool
-     * @throws Exception
      */
     protected function dash(&$dash): bool
     {
@@ -2116,7 +2096,6 @@ class Jevix
     /**
      * @param string $punctuation
      * @return bool
-     * @throws Exception
      */
     protected function punctuation(&$punctuation): bool
     {
@@ -2209,7 +2188,6 @@ class Jevix
     /**
      * @param string $entityCh
      * @return bool
-     * @throws Exception
      */
     protected function htmlEntity(&$entityCh): bool
     {
@@ -2259,7 +2237,6 @@ class Jevix
      * @param string $quote кавычка
      * @param bool $closed закрывающаяся
      * @return bool
-     * @throws Exception
      */
     protected function quote(bool $spacesBefore, &$quote, &$closed): bool
     {
@@ -2314,7 +2291,6 @@ class Jevix
     /**
      * @param string $text
      * @return bool
-     * @throws Exception
      */
     protected function text(&$text): bool
     {
@@ -2472,7 +2448,6 @@ class Jevix
      * @param string $url
      * @param string $href
      * @return bool
-     * @throws Exception
      */
     protected function url(&$url, &$href): bool
     {
