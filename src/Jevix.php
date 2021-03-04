@@ -2043,7 +2043,7 @@ class Jevix
                         return false;
 
                     } else {
-                        $this->errors[] = ['Не ожидалось закрывающегося тега %1$s', $name];
+                        $this->errors[] = ['Not expected to close %1$s tag', $name];
                     }
 
                 } else {
